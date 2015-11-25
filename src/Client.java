@@ -17,190 +17,25 @@ public class Client implements Runnable{
 	private DataOutputStream streamOut = null;
 	
 	
-
-	public static void main(String[] args) {
-		
-		File[] roots = File.listRoots();
-		path = roots[0].toString();
-		
-		Scanner inputIP = new Scanner(System.in);
-		serverConnect(inputIP);
-		
-		createDirectory(inputIP);
-		
-		//s = null;
-		OutputStream out = null;
-		DataOutputStream request = null;
-		DataInputStream reply = null;
-		try {
-			//System.out.print("Connecting to Server...");
-			//s = new Socket(IP_ADDRESS, PORT_NUM);
-			//System.out.println("\t\t...Connected!\n\n");
-			int i = 1;
-			String user_input, file_name, direc;
-			String user_args[];
-			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-			System.out.println("\t\tWelcome to the Client-Server FTP");
-			
-			out = s.getOutputStream();
-				request = new DataOutputStream(out);
-				reply = new DataInputStream(s.getInputStream());
-			
-			while (i != 0) {
-				
-				//Read command
-				System.out.print("\t\tPlease enter a command:");
-				user_input = in.readLine();
-				user_args = user_input.trim().split(" ");
-				
-				//Validate command
-				if (user_args.length >2){
-					//error too many args
-					System.out.println("Too many args");
-				}
-				else{
-					switch (user_args[0]) {
-					case "ls":
-						request.writeByte(1);// send ls
+	public Client(String serverName, int serverPort)
+	   {  System.out.println("Establishing connection. Please wait ...");
+	      try
+	      {  socket = new Socket(serverName, serverPort);
+	         System.out.println("Connected: " + socket);
+	         start();
+	      }
+	      catch(UnknownHostException uhe)
+	      {  System.out.println("Host unknown: " + uhe.getMessage()); }
+	      catch(IOException ioe)
+	      {  System.out.println("Unexpected exception: " + ioe.getMessage()); }
+	}
 	
-						// receive success response
-						
-						reply.readBoolean();
-						
-						System.out.println("Contents of directory:\n");
-						// receive list
-						receiveMsg(reply);
-						
-	
-						break;
-					case "get":
-						if (user_args.length!=2){
-							//error, not enough args
-							System.out.println("ERROR:\tNot enough args");
-							break;
-						}
-						file_name = user_args[1];
-	
-						request.writeByte(2);// send get signal
-						request.writeUTF(file_name);
-	
-						// get success response
-						if(reply.readBoolean()){
-							System.out.println("Success");
-							// receive file
-							receiveFile(reply);
-						}
-						else
-							System.out.println("Failed");
-	
-	
-						break;
-					case "put":
-						
-						if (user_args.length!=2){
-							//error, not enough args
-							System.out.println("ERROR:\tNot enough args");
-							break;
-						}
-						
-	
-						// find file
-						file_name = user_args[1];
-						
-	
-						request.writeByte(3);// send put signal
-	
-						// send file
-						File aFile = findFile(file_name);
-						if (aFile == null)
-							request.writeBoolean(false);
-						else{
-							request.writeBoolean(true);
-							sendFile(file_name, request);
-						}
-						
-						
-						// get success response
-						if(reply.readBoolean())
-							System.out.println("Success");
-						else
-							System.out.println("Failed");
-						
-	
-						break;
-						
-					case "cd":
-						if (user_args.length!=2){
-							//error, not enough args
-							System.out.println("ERROR:\tNot enough args");
-							break;
-						}
-						direc = user_args[1];
-	
-						request.writeByte(4);// send cd signal
-	
-						// send directory name
-						request.writeUTF(direc);
-						
-						// get success response
-						if(reply.readBoolean())
-							System.out.println("Success");
-						else
-							System.out.println("Failed");
-						
-						break;
-					case "mkdir":
-						
-						if (user_args.length!=2){
-							//error, not enough args
-							System.out.println("ERROR:\tNot enough args");
-							break;
-						}
-						direc = user_args[1];
-	
-						request.writeByte(5);// send mkdir signal
-	
-						// send directory name
-						request.writeUTF(direc);
-						
-						
-						// get success response
-						if(reply.readBoolean())
-							System.out.println("Success");
-						else
-							System.out.println("Failed");
-						
-						break;
-					case "exit":
-						System.out.println("\nThank you for using this service!!");
-	
-						request.writeByte(0);// send exit signal
-	
-						i = 0;// exit loop
-						break;
-					default:
-						System.out.println("\tWrong input, please try again.");
-	
-					}
-				}
-			}
-		} catch (Exception e) {
-			System.err.println("--error: " + e.getMessage());
-		} finally {
-			try {
-				if (reply != null)
-					reply.close();
-				if (request != null)
-					request.close();
-				if (out != null)
-					out.close();
-				if (s != null)
-					s.close();
-			} catch (Exception e) {
-				System.err.println("--error: " + e.getMessage());
-			}
-		}
-		inputIP.close();
+	public static void main(String args[])
+	   {Client client = null;
+	      if (args.length != 2)
+	    	  client = new Client(IP_ADDRESS, PORT_NUM);
+	      else
+	         client = new Client(args[0], Integer.parseInt(args[1]));
 	}
 	
 	
@@ -415,4 +250,190 @@ public class Client implements Runnable{
 		}
 	}
 
+	
+//	public static void main(String[] args) {
+//	
+//	File[] roots = File.listRoots();
+//	path = roots[0].toString();
+//	
+//	Scanner inputIP = new Scanner(System.in);
+//	serverConnect(inputIP);
+//	
+//	createDirectory(inputIP);
+//	
+//	//s = null;
+//	OutputStream out = null;
+//	DataOutputStream request = null;
+//	DataInputStream reply = null;
+//	try {
+//		//System.out.print("Connecting to Server...");
+//		//s = new Socket(IP_ADDRESS, PORT_NUM);
+//		//System.out.println("\t\t...Connected!\n\n");
+//		int i = 1;
+//		String user_input, file_name, direc;
+//		String user_args[];
+//		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+//		System.out.println("\t\tWelcome to the Client-Server FTP");
+//		
+//		out = s.getOutputStream();
+//			request = new DataOutputStream(out);
+//			reply = new DataInputStream(s.getInputStream());
+//		
+//		while (i != 0) {
+//			
+//			//Read command
+//			System.out.print("\t\tPlease enter a command:");
+//			user_input = in.readLine();
+//			user_args = user_input.trim().split(" ");
+//			
+//			//Validate command
+//			if (user_args.length >2){
+//				//error too many args
+//				System.out.println("Too many args");
+//			}
+//			else{
+//				switch (user_args[0]) {
+//				case "ls":
+//					request.writeByte(1);// send ls
+//
+//					// receive success response
+//					
+//					reply.readBoolean();
+//					
+//					System.out.println("Contents of directory:\n");
+//					// receive list
+//					receiveMsg(reply);
+//					
+//
+//					break;
+//				case "get":
+//					if (user_args.length!=2){
+//						//error, not enough args
+//						System.out.println("ERROR:\tNot enough args");
+//						break;
+//					}
+//					file_name = user_args[1];
+//
+//					request.writeByte(2);// send get signal
+//					request.writeUTF(file_name);
+//
+//					// get success response
+//					if(reply.readBoolean()){
+//						System.out.println("Success");
+//						// receive file
+//						receiveFile(reply);
+//					}
+//					else
+//						System.out.println("Failed");
+//
+//
+//					break;
+//				case "put":
+//					
+//					if (user_args.length!=2){
+//						//error, not enough args
+//						System.out.println("ERROR:\tNot enough args");
+//						break;
+//					}
+//					
+//
+//					// find file
+//					file_name = user_args[1];
+//					
+//
+//					request.writeByte(3);// send put signal
+//
+//					// send file
+//					File aFile = findFile(file_name);
+//					if (aFile == null)
+//						request.writeBoolean(false);
+//					else{
+//						request.writeBoolean(true);
+//						sendFile(file_name, request);
+//					}
+//					
+//					
+//					// get success response
+//					if(reply.readBoolean())
+//						System.out.println("Success");
+//					else
+//						System.out.println("Failed");
+//					
+//
+//					break;
+//					
+//				case "cd":
+//					if (user_args.length!=2){
+//						//error, not enough args
+//						System.out.println("ERROR:\tNot enough args");
+//						break;
+//					}
+//					direc = user_args[1];
+//
+//					request.writeByte(4);// send cd signal
+//
+//					// send directory name
+//					request.writeUTF(direc);
+//					
+//					// get success response
+//					if(reply.readBoolean())
+//						System.out.println("Success");
+//					else
+//						System.out.println("Failed");
+//					
+//					break;
+//				case "mkdir":
+//					
+//					if (user_args.length!=2){
+//						//error, not enough args
+//						System.out.println("ERROR:\tNot enough args");
+//						break;
+//					}
+//					direc = user_args[1];
+//
+//					request.writeByte(5);// send mkdir signal
+//
+//					// send directory name
+//					request.writeUTF(direc);
+//					
+//					
+//					// get success response
+//					if(reply.readBoolean())
+//						System.out.println("Success");
+//					else
+//						System.out.println("Failed");
+//					
+//					break;
+//				case "exit":
+//					System.out.println("\nThank you for using this service!!");
+//
+//					request.writeByte(0);// send exit signal
+//
+//					i = 0;// exit loop
+//					break;
+//				default:
+//					System.out.println("\tWrong input, please try again.");
+//
+//				}
+//			}
+//		}
+//	} catch (Exception e) {
+//		System.err.println("--error: " + e.getMessage());
+//	} finally {
+//		try {
+//			if (reply != null)
+//				reply.close();
+//			if (request != null)
+//				request.close();
+//			if (out != null)
+//				out.close();
+//			if (s != null)
+//				s.close();
+//		} catch (Exception e) {
+//			System.err.println("--error: " + e.getMessage());
+//		}
+//	}
+//	inputIP.close();
+//}
+	
 }

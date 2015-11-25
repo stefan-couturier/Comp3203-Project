@@ -3,7 +3,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-public class Server {
+public class Server implements Runnable{
 	private final static int PORT_NUM = 45000;
 	public static ServerSocket serv;
 	public static Socket clnt;
@@ -11,158 +11,96 @@ public class Server {
 	public static String path;
 	public static File current_file;
 
-	public static void main(String[] args) {
+	private ServerThread clients[] = new ServerThread[50];
+	private ServerSocket server = null;
+	private Thread       thread = null;
+	private int clientCount = 0;
 
-	
-		File[] roots = File.listRoots();
-		root_dir = roots[0].toString();
-		path = root_dir;
-		
-		serv = null;
-		clnt = null;
-		current_file = null;
-		DataInputStream request = null;
-		DataOutputStream reply = null;
 
-		try {
-			serv = new ServerSocket(PORT_NUM);
-			while(true){
-			System.out.println("Waiting for connection on PORT "+PORT_NUM);
-			clnt = serv.accept();
-			
-			System.out.println("Connection found");
-			current_file = new File(root_dir);
-
-			boolean running = true;
-			boolean status;
-			request = new DataInputStream(clnt.getInputStream());
-			reply = new DataOutputStream(clnt.getOutputStream());
-			String temp = null;
-			int choice;
-			while (running) {
-				
-
-				choice = request.readByte(); // read command
-				
-				switch (choice) {
-				case 1: //ls
-					System.out.println("ls");
-
-					//get contents of the directory
-					temp = null;
-					temp = ls(current_file);
-
-					//return success/fail
-					reply.writeBoolean(temp == null);
-
-					//return current contents
-					sendMsg(temp, reply);
-					break;
-					
-				case 2: //get
-
-					//get filename
-					String file_name = request.readUTF();
-					System.out.println("get \"" + file_name + "\"");
-
-					//find file
-					if (findFile(file_name)==null){
-						//if not found, reply false
-						reply.writeBoolean(false);
-						System.out.println(file_name+" File NOT found");
-					}
-					else{
-						//if found, reply success and send file
-						status = sendFile(file_name,reply);
-						System.out.println(file_name+" File sent");
-
-					}
-					
-					
-					break;
-
-				case 3: //put
-					System.out.print("put ");
-
-					if (request.readBoolean()){
-					//get File
-					status = receiveFile(current_file+"\\", request);
-					
-					//return success
-					reply.writeBoolean(status);
-					}
-					else{
-						//return false
-						reply.writeBoolean(false);
-						System.out.println();
-					}
-
-					
-
-					break;
-
-				case 4: //cd
-
-					//get directory name
-					temp = request.readUTF();
-					System.out.println("cd "+temp);
-
-					//change directory
-					status = cd(temp);
-
-					//return success
-					reply.writeBoolean(status);
-
-					break;
-
-				case 5: //mkdir
-
-					//get directory name
-					temp = request.readUTF();
-
-					System.out.println("mkdir "+temp);
-					//make directory
-					status = mkdir(current_file,temp);
-
-					//return success
-					reply.writeBoolean(status);
-
-					break;
-
-				case 0: //client exits
-					System.out.println("Client exitted. Reopenning Socket");
-
-					//exit loop then close connections
-					running = false;
-					break;
-
-				default: //any other unexpected request
-					System.out.println("Unknown");
-
-					//return false
-					break;
-				}
-			}
-			clnt.close();
-			}
-
-		} catch (Exception e) {
-			System.err.println("--error: " + e.getMessage());
-		} finally {
-			try {
-				if (request != null)
-					request.close();
-				if (reply != null)
-					reply.close();
-				if (clnt != null)
-					clnt.close();
-				if (serv != null)
-					serv.close();
-			} catch (Exception e) {
-				System.err.println("--error: " + e.getMessage());
-			}
+	public Server(int port){
+		try{
+			System.out.println("Binding to port " + port + ", please wait  ...");
+			server = new ServerSocket(port);  
+			System.out.println("Server started: " + server);
+			start(); 
+		}
+		catch(IOException ioe){
+			System.out.println("Can not bind to port " + port + ": " + ioe.getMessage()); 
 		}
 	}
+
+	public void run()
+	{  while (thread != null)
+	{  try
+	{  System.out.println("Waiting for a client ..."); 
+	addThread(server.accept()); }
+	catch(IOException ioe)
+	{  System.out.println("Server accept error: " + ioe); stop(); }
+	}
+	}
+
+	public void start(){
+		if (thread == null){
+			thread = new Thread(this); 
+			thread.start();
+		}
+	}
+	public void stop(){
+		if (thread != null){
+			thread.stop(); 
+			thread = null;
+		}
+	}
+	private int findClient(int ID){
+		for (int i = 0; i < clientCount; i++)
+			if (clients[i].getID() == ID)
+				return i;
+		return -1;
+	}
+	public synchronized void handle(int ID, String input){
+		if (input.equals(".bye")){
+			clients[findClient(ID)].send(".bye");
+			remove(ID); 
+		}
+		else
+			for (int i = 0; i < clientCount; i++)
+				clients[i].send(ID + ": " + input);   
+	}
+	public synchronized void remove(int ID){
+		int pos = findClient(ID);
+		if (pos >= 0){
+			ServerThread toTerminate = clients[pos];
+			System.out.println("Removing client thread " + ID + " at " + pos);
+			if (pos < clientCount-1)
+				for (int i = pos+1; i < clientCount; i++)
+					clients[i-1] = clients[i];
+			clientCount--;
+			try{
+				toTerminate.close(); 
+			}
+			catch(IOException ioe){
+				System.out.println("Error closing thread: " + ioe); 
+			}
+			toTerminate.stop(); 
+		}
+	}
+	private void addThread(Socket socket){
+		if (clientCount < clients.length){
+			System.out.println("Client accepted: " + socket);
+			clients[clientCount] = new ServerThread(this, socket);
+			try	{
+				clients[clientCount].open(); 
+				clients[clientCount].start();  
+				clientCount++; 
+			}
+			catch(IOException ioe){
+				System.out.println("Error opening thread: " + ioe); 
+			} 
+		}
+		else
+			System.out.println("Client refused: maximum " + clients.length + " reached.");
+	}
+
 
 	public static boolean sendFile(String name, DataOutputStream reply) throws IOException {
 		boolean status = true;
@@ -182,7 +120,7 @@ public class Server {
 			dataIn_stream = new DataInputStream(buffer_stream);
 
 			dataIn_stream.readFully(byte_array, 0, byte_array.length);
-			
+
 			reply.writeBoolean(true);
 			reply.writeUTF(file.getName());
 			reply.writeLong((long) byte_array.length);
@@ -204,7 +142,7 @@ public class Server {
 		}
 		return status;
 	}
-	
+
 	private static File findFile(String name){
 		String file_path = current_file + "\\" + name;
 		File aFile = new File(file_path);
@@ -227,7 +165,7 @@ public class Server {
 				request.skip(f_size);
 				return false;
 			}
-			
+
 			f_name = path.concat((Paths.get(request.readUTF())).getFileName().toString());
 			System.out.println(f_name);
 			f_size = request.readLong();
@@ -336,4 +274,166 @@ public class Server {
 		return s;
 	}
 
+	
+	public static void main(String args[]){
+		Server server = null;
+	    if (args.length != 1)
+	    	server = new Server(PORT_NUM);
+	    else
+	    	server = new Server(Integer.parseInt(args[0]));
+	}
+	
+//	public static void main(String[] args) {
+//
+//
+//		File[] roots = File.listRoots();
+//		root_dir = roots[0].toString();
+//		path = root_dir;
+//
+//		serv = null;
+//		clnt = null;
+//		current_file = null;
+//		DataInputStream request = null;
+//		DataOutputStream reply = null;
+//
+//		try {
+//			serv = new ServerSocket(PORT_NUM);
+//			while(true){
+//				System.out.println("Waiting for connection on PORT "+PORT_NUM);
+//				clnt = serv.accept();
+//
+//				System.out.println("Connection found");
+//				current_file = new File(root_dir);
+//
+//				boolean running = true;
+//				boolean status;
+//				request = new DataInputStream(clnt.getInputStream());
+//				reply = new DataOutputStream(clnt.getOutputStream());
+//				String temp = null;
+//				int choice;
+//				while (running) {
+//
+//
+//					choice = request.readByte(); // read command
+//
+//					switch (choice) {
+//					case 1: //ls
+//						System.out.println("ls");
+//
+//						//get contents of the directory
+//						temp = null;
+//						temp = ls(current_file);
+//
+//						//return success/fail
+//						reply.writeBoolean(temp == null);
+//
+//						//return current contents
+//						sendMsg(temp, reply);
+//						break;
+//
+//					case 2: //get
+//
+//						//get filename
+//						String file_name = request.readUTF();
+//						System.out.println("get \"" + file_name + "\"");
+//
+//						//find file
+//						if (findFile(file_name)==null){
+//							//if not found, reply false
+//							reply.writeBoolean(false);
+//							System.out.println(file_name+" File NOT found");
+//						}
+//						else{
+//							//if found, reply success and send file
+//							status = sendFile(file_name,reply);
+//							System.out.println(file_name+" File sent");
+//
+//						}
+//
+//
+//						break;
+//
+//					case 3: //put
+//						System.out.print("put ");
+//
+//						if (request.readBoolean()){
+//							//get File
+//							status = receiveFile(current_file+"\\", request);
+//
+//							//return success
+//							reply.writeBoolean(status);
+//						}
+//						else{
+//							//return false
+//							reply.writeBoolean(false);
+//							System.out.println();
+//						}
+//
+//
+//
+//						break;
+//
+//					case 4: //cd
+//
+//						//get directory name
+//						temp = request.readUTF();
+//						System.out.println("cd "+temp);
+//
+//						//change directory
+//						status = cd(temp);
+//
+//						//return success
+//						reply.writeBoolean(status);
+//
+//						break;
+//
+//					case 5: //mkdir
+//
+//						//get directory name
+//						temp = request.readUTF();
+//
+//						System.out.println("mkdir "+temp);
+//						//make directory
+//						status = mkdir(current_file,temp);
+//
+//						//return success
+//						reply.writeBoolean(status);
+//
+//						break;
+//
+//					case 0: //client exits
+//						System.out.println("Client exitted. Reopenning Socket");
+//
+//						//exit loop then close connections
+//						running = false;
+//						break;
+//
+//					default: //any other unexpected request
+//						System.out.println("Unknown");
+//
+//						//return false
+//						break;
+//					}
+//				}
+//				clnt.close();
+//			}
+//
+//		} catch (Exception e) {
+//			System.err.println("--error: " + e.getMessage());
+//		} finally {
+//			try {
+//				if (request != null)
+//					request.close();
+//				if (reply != null)
+//					reply.close();
+//				if (clnt != null)
+//					clnt.close();
+//				if (serv != null)
+//					serv.close();
+//			} catch (Exception e) {
+//				System.err.println("--error: " + e.getMessage());
+//			}
+//		}
+//	}
+	
 }
