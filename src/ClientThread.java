@@ -29,7 +29,7 @@ public class ClientThread extends Thread {
 		}
 	}
 	
-	//Open the thead
+	//Open the thread
 	public void open() {
 		{  try
 	      {  inputStream  = new DataInputStream(socket.getInputStream());
@@ -41,7 +41,7 @@ public class ClientThread extends Thread {
 	   }
 	}
 	
-	//Close the thead
+	//Close the thread
 	public void close() throws IOException{
 		try {
 			if (inputStream != null) inputStream.close();
