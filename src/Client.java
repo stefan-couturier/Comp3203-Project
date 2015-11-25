@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class Client implements Runnable{
 	private final static int PORT_NUM = 45000;
-	private static String IP_ADDRESS = "000.0.00.00";
+	private static String IP_ADDRESS = "172.17.217.181";
 	public static Socket s;
 	public static String path;
 	
@@ -15,10 +15,12 @@ public class Client implements Runnable{
 	private Socket  socket   = null;
 	private DataInputStream  console   = null;
 	private DataOutputStream streamOut = null;
+	private ClientGUI gui = null;
 	
 	
-	public Client(String serverName, int serverPort)
-	   {  System.out.println("Establishing connection. Please wait ...");
+	public Client(String serverName, int serverPort){
+		gui = new ClientGUI();
+		System.out.println("Establishing connection. Please wait ...");
 	      try
 	      {  socket = new Socket(serverName, serverPort);
 	         System.out.println("Connected: " + socket);

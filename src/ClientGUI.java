@@ -30,6 +30,7 @@ public class ClientGUI {
 	 */
 	public ClientGUI() {
 		initialize();
+		this.frame.setVisible(true);
 	}
 
 	/**
