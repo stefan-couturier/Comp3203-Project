@@ -42,7 +42,7 @@ public class ClientThread extends Thread {
 	}
 	
 	//Close the thread
-	public void close() throws IOException{
+	public void close(){
 		try {
 			if (inputStream != null) inputStream.close();
 		}

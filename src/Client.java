@@ -4,11 +4,19 @@ import java.nio.file.*;
 import java.net.*;
 import java.util.Scanner;
 
-public class Client {
+public class Client implements Runnable{
 	private final static int PORT_NUM = 45000;
 	private static String IP_ADDRESS = "000.0.00.00";
 	public static Socket s;
 	public static String path;
+	
+	private Thread thread = null;
+	private ClientThread clientThread = null;
+	private Socket  socket   = null;
+	private DataInputStream  console   = null;
+	private DataOutputStream streamOut = null;
+	
+	
 
 	public static void main(String[] args) {
 		
@@ -193,6 +201,56 @@ public class Client {
 			}
 		}
 		inputIP.close();
+	}
+	
+	
+	public void run(){
+		while (thread != null){
+			try{
+				streamOut.writeUTF(console.readLine());
+	            streamOut.flush();
+	         }
+	         catch(IOException ioe){
+	        	 System.out.println("Sending error: " + ioe.getMessage());
+	        	 stop();
+	         }
+		}
+	}
+	
+	public void handle(String msg){
+		if (msg.equals(".bye")){
+			System.out.println("Good bye. Press RETURN to exit ...");
+	        stop();
+	    }
+	    else
+	    	System.out.println(msg);
+	}
+	
+	public void start() throws IOException{
+		console   = new DataInputStream(System.in);
+	    streamOut = new DataOutputStream(socket.getOutputStream());
+	    if (thread == null){
+	    	clientThread = new ClientThread(this, socket);
+	        thread = new Thread(this);                   
+	        thread.start();
+	    }
+	}
+	
+	public void stop(){
+		if (thread != null){
+			thread.stop();  
+	        thread = null;
+	    }
+	    try{
+	    	if (console   != null)  console.close();
+	        if (streamOut != null)  streamOut.close();
+	        if (socket    != null)  socket.close();
+	    }
+	    catch(IOException ioe){
+	    	System.out.println("Error closing ..."); 
+	    }
+	    clientThread.close();  
+	    clientThread.stop();
 	}
 
 
