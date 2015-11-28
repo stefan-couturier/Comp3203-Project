@@ -1,13 +1,56 @@
 import java.awt.EventQueue;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 public class ClientGUI {
 
 	private JFrame frame;
+	private JLabel lblClient;
+	private JButton btnInitiateConnection;
+	private JButton btnTerminateConnection;
+	private JLabel lblIpAddress;
+	private JLabel label;
+	private JLabel lblPortNumber;
+	private JLabel label_1;
+	private JLabel lblConnectionStatus;
+	private JLabel lblFilesOnServer;
+	private JList serverFileList;
+	private JList clientFileList;
+	private JList peerList;
+	private JButton btnDownloadAFile;
+	private JLabel lblFilesOnSystem;
+	private JButton btnUploadAFile;
+	private JLabel lblOnlinePeers;
+	private JButton btnChat;
+	
+	private String selectedServerFile;
+	private String selectedClientFile;
+	private String selectedPeer;
+	private boolean requestingDownload;
+	private boolean requestingUpload;
+	private boolean requestingRefresh;
+	
+	private ArrayList<String> serverFiles;
+	private ArrayList<String> clientFiles;
+	private ArrayList<String> peers;
+	
+	private ActionListener initiateButtonListener;
+	private ActionListener terminateButtonListener;
+	private ActionListener downloadButtonListener;
+	private ActionListener uploadButtonListener;
+	private ListSelectionListener serverFileListSelectionListener;
+	private ListSelectionListener clientFileListSelectionListener;
+	private ListSelectionListener peerListSelectionListener;
+	
 
 	/**
 	 * Launch the application.
@@ -29,9 +72,178 @@ public class ClientGUI {
 	 * Create the application.
 	 */
 	public ClientGUI() {
+		serverFiles = new ArrayList<String>();
+		clientFiles = new ArrayList<String>();
+		peers = new ArrayList<String>();
+		
+		peers.add("//TODO:");
+		
+		selectedServerFile = null;
+		selectedClientFile = null;
+		selectedPeer = null;
+		requestingDownload = false;
+		requestingUpload = false;
+		
+		initiateButtonListener = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				
+			}
+		};
+		
+		terminateButtonListener = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				requestRefresh();
+			}
+		};
+		
+		downloadButtonListener = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				requestDownload();
+			}
+		};
+		
+		uploadButtonListener = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				requestUpload();
+			}
+		};
+		
+		serverFileListSelectionListener = new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent event) {
+				selectServerFile();
+			}
+		};
+		
+		clientFileListSelectionListener = new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent event) {
+				selectClientFile();
+			}
+		};
+		
+		peerListSelectionListener = new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent event) {
+				selectPeer();
+			}
+		};
+		
 		initialize();
 		this.frame.setVisible(true);
+		enableListeners();
 	}
+	
+	
+	public boolean isRequestingDownload() {
+		return requestingDownload;
+	}
+	
+	public boolean isRequestingUpload() {
+		return requestingUpload;
+	}
+	
+	public boolean isRequestingRefresh() {
+		return requestingRefresh;
+	}
+	
+	public void setRequestingDownload(boolean b) {
+		requestingDownload = b;
+	}
+	
+	public void setRequestingUpload(boolean b) {
+		requestingUpload = b;
+	}
+	
+	public void setRequestingRefresh(boolean b) {
+		requestingRefresh = b;
+	}
+	
+	public void requestDownload() {
+		if (selectedServerFile != null)
+			requestingDownload = true;
+	}
+	
+	
+	public void requestUpload() {
+		if (selectedClientFile != null)
+			requestingUpload = true;
+	}
+	
+	public void requestRefresh() {
+		requestingRefresh = true;
+	}
+	
+	public void selectServerFile() {
+		selectedServerFile = (String) serverFileList.getSelectedValue();
+	}
+	
+	
+	public void selectClientFile() {
+		selectedClientFile = (String) clientFileList.getSelectedValue();
+	}
+	
+	
+	public void selectPeer() {
+		selectedPeer = (String) peerList.getSelectedValue();
+	}
+	
+	public String getSelectedServerFile() {
+		return selectedServerFile;
+	}
+	
+	public String getSelectedClientFile() {
+		return selectedClientFile;
+	}
+	
+	public String getSelectedPeer() {
+		return selectedPeer;
+	}
+
+
+	// Update lists
+	@SuppressWarnings("unchecked")
+	public void updateLists(ArrayList<String> s, ArrayList<String> c, ArrayList<String> p) {
+		disableListeners();
+		selectedServerFile = null;
+		selectedClientFile = null;
+		selectedPeer = null;
+		
+		serverFiles = new ArrayList<String>(s);
+		clientFiles = new ArrayList<String>(c);
+		peers = new ArrayList<String>(p);
+
+		String strServer[] = new String[1]; // needed to establish array type for next line
+		serverFileList.setListData((String[]) serverFiles.toArray(strServer));
+		String strClient[] = new String[1]; // needed to establish array type for next line
+		clientFileList.setListData((String[]) clientFiles.toArray(strClient));
+		String strPeer[] = new String[1]; // needed to establish array type for next line
+		peerList.setListData((String[]) peers.toArray(strPeer));
+
+		enableListeners();
+	}
+
+
+	// Enable listeners
+	private void enableListeners() {
+		btnInitiateConnection.addActionListener(initiateButtonListener);
+		btnTerminateConnection.addActionListener(terminateButtonListener);
+		btnDownloadAFile.addActionListener(downloadButtonListener);
+		btnUploadAFile.addActionListener(uploadButtonListener);
+		serverFileList.addListSelectionListener(serverFileListSelectionListener);
+		clientFileList.addListSelectionListener(clientFileListSelectionListener);
+		peerList.addListSelectionListener(peerListSelectionListener);
+	}
+
+
+	// Disable listeners
+	private void disableListeners() {
+		btnInitiateConnection.removeActionListener(initiateButtonListener);
+		btnTerminateConnection.removeActionListener(terminateButtonListener);
+		btnDownloadAFile.removeActionListener(downloadButtonListener);
+		btnUploadAFile.removeActionListener(uploadButtonListener);
+		serverFileList.removeListSelectionListener(serverFileListSelectionListener);
+		clientFileList.removeListSelectionListener(clientFileListSelectionListener);
+		peerList.removeListSelectionListener(peerListSelectionListener);
+	}
+
 
 	/**
 	 * Initialize the contents of the frame.
@@ -42,13 +254,13 @@ public class ClientGUI {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-		JLabel lblClient = new JLabel("Client");
+		lblClient = new JLabel("Client");
 		lblClient.setFont(new Font("Franklin Gothic Medium", Font.BOLD | Font.ITALIC, 20));
 		lblClient.setBounds(27, 22, 81, 24);
 		frame.getContentPane().add(lblClient);
 		
-		JButton btnInitiateConnection = new JButton("Initiate Connection");
-		btnInitiateConnection.addActionListener(new ActionListener() {
+		btnInitiateConnection = new JButton("Initiate Connection");
+		/*btnInitiateConnection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String ip = JOptionPane.showInputDialog("Enter the IP Address: ");
 				
@@ -58,13 +270,13 @@ public class ClientGUI {
 				//else
 				//JOptionPane.showMessageDialog(null, "Connection Unsuccessful");
 			}
-		});
+		});*/
 		btnInitiateConnection.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		btnInitiateConnection.setBounds(27, 57, 138, 23);
 		frame.getContentPane().add(btnInitiateConnection);
 		
-		JButton btnTerminateConnection = new JButton("Terminate Connection");
-		btnTerminateConnection.addActionListener(new ActionListener() {
+		btnTerminateConnection = new JButton("Refresh");
+		/*btnTerminateConnection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
 				//if termination successful
@@ -74,56 +286,49 @@ public class ClientGUI {
 				//JOptionPane.showMessageDialog(null, "Termination Unsuccessful");
 				
 			}
-		});
+		});*/
 		btnTerminateConnection.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		btnTerminateConnection.setBounds(27, 98, 169, 23);
 		frame.getContentPane().add(btnTerminateConnection);
 		
-		JLabel lblIpAddress = new JLabel("IP Address: ");
+		lblIpAddress = new JLabel("IP Address: ");
 		lblIpAddress.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblIpAddress.setBounds(400, 30, 81, 14);
 		frame.getContentPane().add(lblIpAddress);
 		
-		JLabel label = new JLabel("0.0.0.0");
+		label = new JLabel("0.0.0.0");
 		label.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		label.setBounds(550, 29, 88, 14);
 		frame.getContentPane().add(label);
 		
-		JLabel lblPortNumber = new JLabel("Port Number: ");
+		lblPortNumber = new JLabel("Port Number: ");
 		lblPortNumber.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblPortNumber.setBounds(400, 60, 81, 14);
 		frame.getContentPane().add(lblPortNumber);
 		
-		JLabel label_1 = new JLabel("45000");
+		label_1 = new JLabel("45000");
 		label_1.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		label_1.setBounds(550, 61, 46, 14);
 		frame.getContentPane().add(label_1);
 		
-		JLabel lblConnectionStatus = new JLabel("Connection Status: ");
+		lblConnectionStatus = new JLabel("Connection Status: ");
 		lblConnectionStatus.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblConnectionStatus.setBounds(400, 90, 125, 14);
 		frame.getContentPane().add(lblConnectionStatus);
 		
-		JLabel lblFilesOnServer = new JLabel("Files on Server");
+		lblFilesOnServer = new JLabel("Files on Server");
 		lblFilesOnServer.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblFilesOnServer.setBounds(27, 166, 109, 14);
 		frame.getContentPane().add(lblFilesOnServer);
 		
-		JList list = new JList();
-		list.setModel(new AbstractListModel() {
-			String[] values = new String[] {"File 1", "File 2", "File 3"};
-			public int getSize() {
-				return values.length;
-			}
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
-		list.setBounds(27, 191, 138, 146);
-		frame.getContentPane().add(list);
+		serverFileList = new JList();
+		serverFileList.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		//serverFileList.setPrototypeCellValue("--------------------------");
+		serverFileList.setBounds(27, 191, 138, 146);
+		frame.getContentPane().add(serverFileList);
 		
-		JButton btnDownloadAFile = new JButton("Download a File");
-		btnDownloadAFile.addActionListener(new ActionListener() {
+		btnDownloadAFile = new JButton("Download a File");
+		/*btnDownloadAFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String fname = JOptionPane.showInputDialog("Enter file name: ");
 				
@@ -133,31 +338,23 @@ public class ClientGUI {
 				//else
 				//JOptionPane.showMessageDialog(null, "Download Unsuccessful");
 			}
-		});
+		});*/
 		btnDownloadAFile.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		btnDownloadAFile.setBounds(27, 354, 155, 23);
 		frame.getContentPane().add(btnDownloadAFile);
 		
-		JLabel lblFilesOnSystem = new JLabel("Files on System");
+		lblFilesOnSystem = new JLabel("Files on System");
 		lblFilesOnSystem.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblFilesOnSystem.setBounds(243, 166, 109, 14);
 		frame.getContentPane().add(lblFilesOnSystem);
 		
-		JList list_1 = new JList();
-		list_1.setModel(new AbstractListModel() {
-			String[] values = new String[] {"File 1", "File 2", "File 3"};
-			public int getSize() {
-				return values.length;
-			}
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
-		list_1.setBounds(243, 191, 138, 146);
-		frame.getContentPane().add(list_1);
+		clientFileList = new JList();
+		clientFileList.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		clientFileList.setBounds(243, 191, 138, 146);
+		frame.getContentPane().add(clientFileList);
 		
-		JButton btnUploadAFile = new JButton("Upload a File");
-		btnUploadAFile.addActionListener(new ActionListener() {
+		btnUploadAFile = new JButton("Upload a File");
+		/*btnUploadAFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String fname = JOptionPane.showInputDialog("Enter file name: ");
 				
@@ -166,32 +363,25 @@ public class ClientGUI {
 				//else
 				//JOptionPane.showMessageDialog(null, "Upload Unsuccessful");
 			}
-		});
+		});*/
 		btnUploadAFile.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		btnUploadAFile.setBounds(243, 354, 155, 23);
 		frame.getContentPane().add(btnUploadAFile);
 		
-		JLabel lblOnlinePeers = new JLabel("Online Peers");
+		lblOnlinePeers = new JLabel("Online Peers");
 		lblOnlinePeers.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblOnlinePeers.setBounds(452, 166, 109, 14);
 		frame.getContentPane().add(lblOnlinePeers);
 		
-		JList list_2 = new JList();
-		list_2.setModel(new AbstractListModel() {
-			String[] values = new String[] {"Peer 1", "Peer 2", "Peer 3"};
-			public int getSize() {
-				return values.length;
-			}
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
-		list_2.setBounds(452, 191, 138, 146);
-		frame.getContentPane().add(list_2);
+		peerList = new JList();
+		peerList.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		peerList.setBounds(452, 191, 138, 146);
+		frame.getContentPane().add(peerList);
 		
-		JButton btnChat = new JButton("Peer-to-Peer ");
+		btnChat = new JButton("Peer-to-Peer ");
 		btnChat.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		btnChat.setBounds(452, 355, 125, 23);
 		frame.getContentPane().add(btnChat);
 	}
+	
 }

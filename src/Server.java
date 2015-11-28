@@ -2,12 +2,14 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Server implements Runnable{
 	private final static int PORT_NUM = 45000;
 	public static ServerSocket serv;
 	public static Socket clnt;
-	public static String root_dir;
+	public static String root_dir = "C:\\Users\\Andrew\\Test";
 	public static String path;
 	public static File current_file;
 
@@ -32,7 +34,7 @@ public class Server implements Runnable{
 	public void run()
 	{  while (thread != null)
 	{  try
-	{  System.out.println("Waiting for a client ..."); 
+	{  System.out.println("Waiting for an awesome client ..."); 
 	addThread(server.accept()); }
 	catch(IOException ioe)
 	{  System.out.println("Server accept error: " + ioe); stop(); }
@@ -57,15 +59,42 @@ public class Server implements Runnable{
 				return i;
 		return -1;
 	}
-	public synchronized void handle(int ID, String input){
+	
+	public synchronized void handle(int ID, String input, DataInputStream inputStream, DataOutputStream outputStream){
 		if (input.equals(".bye")){
 			clients[findClient(ID)].send(".bye");
 			remove(ID); 
-		}
-		else
+		} else {
 			for (int i = 0; i < clientCount; i++)
-				clients[i].send(ID + ": " + input);   
+				clients[i].send(ID + ": " + input);
+		}
 	}
+	
+	// this is to send updated lists to a client when requested from client
+	public synchronized void handleUpdateLists(int ID) {
+		// TODO: sendFileList() should maybe be in this server class instead of serverThread
+		clients[findClient(ID)].sendFileList(getFileList());
+	}
+	
+	// this send a file to client when they request to download a file
+	public synchronized void handleDownload(int ID, String filename, DataOutputStream outputStream) {
+		try {
+			sendFile(filename, outputStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// this lets server receive an upload from the client
+	public synchronized void handleUpload(int ID, String filename, DataInputStream inputStream) {
+		try {
+			receiveFile(root_dir, inputStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public synchronized void remove(int ID){
 		int pos = findClient(ID);
 		if (pos >= 0){
@@ -84,6 +113,8 @@ public class Server implements Runnable{
 			toTerminate.stop(); 
 		}
 	}
+	
+	
 	private void addThread(Socket socket){
 		if (clientCount < clients.length){
 			System.out.println("Client accepted: " + socket);
@@ -102,14 +133,15 @@ public class Server implements Runnable{
 	}
 
 
-	public static boolean sendFile(String name, DataOutputStream reply) throws IOException {
+	public boolean sendFile(String name, DataOutputStream reply) throws IOException {
 		boolean status = true;
 		FileInputStream file_stream = null;
 		BufferedInputStream buffer_stream = null;
 		DataInputStream dataIn_stream = null;
 		dataIn_stream = null;
 
-		String file_path = current_file + "\\" + name;
+		//String file_path = current_file + "\\" + name;
+		String file_path = root_dir + "\\" + name;
 
 		File file = new File(file_path);
 		byte[] byte_array = new byte[(int) file.length()];
@@ -143,7 +175,7 @@ public class Server implements Runnable{
 		return status;
 	}
 
-	private static File findFile(String name){
+	private File findFile(String name){
 		String file_path = current_file + "\\" + name;
 		File aFile = new File(file_path);
 		if (aFile.exists())
@@ -151,7 +183,7 @@ public class Server implements Runnable{
 		return null;
 	}
 
-	public static boolean receiveFile(String path, DataInputStream request) throws IOException {
+	public boolean receiveFile(String path, DataInputStream request) throws IOException {
 		boolean status = true;
 		int r_byt = 0;
 		String f_name = null;
@@ -159,14 +191,14 @@ public class Server implements Runnable{
 		OutputStream writer = null;
 
 		try {
-			if (path.equals(root_dir+"\\")){
+			/*if (path.equals(root_dir+"\\")){
 				request.readUTF();
 				f_size = request.readLong();
 				request.skip(f_size);
 				return false;
-			}
+			}*/
 
-			f_name = path.concat((Paths.get(request.readUTF())).getFileName().toString());
+			f_name = path.concat("\\" + (Paths.get(request.readUTF())).getFileName().toString());
 			System.out.println(f_name);
 			f_size = request.readLong();
 			writer = new FileOutputStream(f_name);
@@ -190,7 +222,7 @@ public class Server implements Runnable{
 		return status;
 	}
 
-	public static void sendMsg(String input, DataOutputStream reply) throws IOException {
+	public void sendMsg(String input, DataOutputStream reply) throws IOException {
 		try {
 			byte[] buf = new byte[input.length()];
 			for (int i = 0; i < input.length(); i++)
@@ -202,7 +234,7 @@ public class Server implements Runnable{
 		}
 	}
 
-	public static void receiveCmd(int type, DataInputStream request, DataOutputStream reply) throws IOException {
+	public void receiveCmd(int type, DataInputStream request, DataOutputStream reply) throws IOException {
 		try {
 			int rec = 0;
 			int size = request.readInt();
@@ -239,13 +271,13 @@ public class Server implements Runnable{
 		}
 	}
 
-	public static boolean mkdir(File f, String s) {
+	public boolean mkdir(File f, String s) {
 		File n = new File(f.toString() + "\\" + s);
 		// will return false if directory already exists
 		return n.mkdir();
 	}
 
-	public static boolean cd(String s) {
+	public boolean cd(String s) {
 		boolean status = false;
 		// if they wish go up a directory and they're are not already at the root, they can
 		if (s.equals("..") && !current_file.getPath().equals(root_dir)) {
@@ -264,7 +296,7 @@ public class Server implements Runnable{
 		return status;
 	}
 
-	public static String ls(File f) {
+	public String ls(File f) {
 		File[] arr = f.listFiles();
 		String s = "";
 		for (int i = 0; i < arr.length; i++) {
@@ -272,6 +304,25 @@ public class Server implements Runnable{
 			s += "\n";
 		}
 		return s;
+	}
+	
+	public ArrayList<String> getFileList() {
+		File f = new File(root_dir);
+		ArrayList<File> files = new ArrayList<File>(Arrays.asList(f.listFiles()));
+		ArrayList<String> list = new ArrayList<String>();
+		for(int x = 0; x < files.size(); x++) {
+			if (!files.get(x).isDirectory()) 
+				list.add(files.get(x).getName());
+		}
+		return list;
+	}
+	
+	// verify that server doesn't already have the file that the client wants to upload
+	public boolean verifyUpload(String s) {
+		ArrayList<String> list = new ArrayList<String>(getFileList());
+		if (s != null && !list.contains(s))
+			return true;
+		else return false;
 	}
 
 	

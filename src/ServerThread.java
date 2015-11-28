@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+
 
 public class ServerThread extends Thread {
 	private Server       server    = null;
@@ -8,48 +10,88 @@ public class ServerThread extends Thread {
 	private DataInputStream  inputStream  =  null;
 	private DataOutputStream outputStream = null;
 
-	   public ServerThread(Server _server, Socket _socket){
-		   super();
-		   server = _server;
-		   socket = _socket;
-		   ID     = socket.getPort();
-	   }
-	   public int getID(){
-		   return ID;
-	   }
-	   public void run()
-	   {  System.out.println("Server Thread " + ID + " running.");
-	      while (true)
-	      {  try
-	         {  server.handle(ID, inputStream.readUTF());
-	         }
-	         catch(IOException ioe)
-	         {  System.out.println(ID + " ERROR reading: " + ioe.getMessage());
-	            server.remove(ID);
-	            stop();
-	         }
-	      }
-	   }
-	   public void open() throws IOException {
-		   inputStream = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-		   outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-	   }
-	   public void close() throws IOException{
-		   if (socket != null)    socket.close();
-		   if (inputStream != null)  inputStream.close();
-		   if (outputStream != null) outputStream.close();
-	   }
-	   
-	   
-	   public void send(String msg){
-		   try
-	       {  outputStream.writeUTF(msg);
-	       		outputStream.flush();
-	       }
-	       catch(IOException ioe)
-	       {  System.out.println(ID + " ERROR sending: " + ioe.getMessage());
-	          server.remove(ID);
-	          stop();
-	       }
-	   }
+	public ServerThread(Server _server, Socket _socket){
+		super();
+		server = _server;
+		socket = _socket;
+		ID     = socket.getPort();
+	}
+	
+	public int getID() {
+		return ID;
+	}
+	
+	public void run() {
+		System.out.println("Server Thread " + ID + " running.");
+		String received;
+		while (true) {
+			try {
+				//server.handle(ID, inputStream.readUTF());
+				
+				// serverThread does the 'receiving' from client, and then tells server what to do
+				received = inputStream.readUTF();
+				
+				if (received.equals("update")) {
+					System.out.println("received update request");
+					send("update"); // lets clientThread get ready to receive updated lists
+					server.handleUpdateLists(ID);
+				} 
+				else if (received.equals("download")) {
+					String filename = inputStream.readUTF();
+					send("download"); // lets the clientThread get ready to download from server
+					server.handleDownload(ID, filename, outputStream);
+				} 
+				else if (received.equals("upload")) {
+					String filename = inputStream.readUTF();
+					if (server.verifyUpload(filename)) {
+						send("upload"); // lets the clientThread get ready to upload to server
+						server.handleUpload(ID, filename, inputStream);
+					}
+					else
+						send("noupload");
+				}
+				
+			}
+			catch(IOException ioe)
+			{
+				System.out.println(ID + " ERROR reading: " + ioe.getMessage());
+				server.remove(ID);
+				//stop();
+			}
+		}
+	}
+	
+	public void open() throws IOException {
+		inputStream = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+		outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+	}
+	public void close() throws IOException {
+		if (socket != null)    socket.close();
+		if (inputStream != null)  inputStream.close();
+		if (outputStream != null) outputStream.close();
+	}
+
+
+	public void send(String msg){
+		try {  
+			outputStream.writeUTF(msg);
+			outputStream.flush();
+		}
+		catch(IOException ioe) {  
+			System.out.println(ID + " ERROR sending: " + ioe.getMessage());
+			server.remove(ID);
+			//stop();
+		}
+	}
+
+	public void sendFileList(ArrayList<String> list) {
+		try {
+			// so client knows how many file names to expect
+			outputStream.writeInt(list.size());
+			for (int i=0; i < list.size(); i++)
+				outputStream.writeUTF(list.get(i));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -1,5 +1,4 @@
 /Client.class
-/Server.class
 /ClientGUI$1.class
 /ClientGUI$2.class
 /ClientGUI$3.class
@@ -9,6 +8,8 @@
 /ClientGUI$7.class
 /ClientGUI$8.class
 /ClientGUI.class
+/ClientThread.class
+/Server.class
 /ServerGUI$1.class
 /ServerGUI$2.class
 /ServerGUI$3.class
@@ -17,5 +18,10 @@
 /ServerGUI$6.class
 /ServerGUI$7.class
 /ServerGUI.class
-/ClientThread.class
 /ServerThread.class
+/ClientGUI$10.class
+/ClientGUI$9.class
+/ClientGUI$11.class
+/ClientGUI$12.class
+/ClientGUI$13.class
+/ClientGUI$14.class

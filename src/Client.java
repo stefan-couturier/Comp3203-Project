@@ -2,13 +2,15 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Client implements Runnable{
 	private final static int PORT_NUM = 45000;
-	private static String IP_ADDRESS = "172.17.217.181";
+	private static String IP_ADDRESS = "192.168.2.10";
 	public static Socket s;
-	public static String path;
+	public static String path = "C:\\Users\\Andrew\\Test\\Wicked";
 	
 	private Thread thread = null;
 	private ClientThread clientThread = null;
@@ -16,6 +18,8 @@ public class Client implements Runnable{
 	private DataInputStream  console   = null;
 	private DataOutputStream streamOut = null;
 	private ClientGUI gui = null;
+	
+	private String selectedClientFile;
 	
 	
 	public Client(String serverName, int serverPort){
@@ -32,20 +36,39 @@ public class Client implements Runnable{
 	      {  System.out.println("Unexpected exception: " + ioe.getMessage()); }
 	}
 	
-	public static void main(String args[])
-	   {Client client = null;
-	      if (args.length != 2)
-	    	  client = new Client(IP_ADDRESS, PORT_NUM);
-	      else
-	         client = new Client(args[0], Integer.parseInt(args[1]));
+	public static void main(String args[]) {
+		Client client = null;
+	    if (args.length != 2)
+	    	client = new Client(IP_ADDRESS, PORT_NUM);
+	    else
+	        client = new Client(args[0], Integer.parseInt(args[1]));
 	}
 	
 	
 	public void run(){
 		while (thread != null){
 			try{
-				streamOut.writeUTF(console.readLine());
-	            streamOut.flush();
+				// handle gui input and pass commands to ServerThread
+				if (gui.isRequestingRefresh()) {
+					streamOut.writeUTF("update"); // requests updated lists from server
+					gui.setRequestingRefresh(false);
+				}
+				else if (gui.isRequestingDownload()) {
+					String filename = gui.getSelectedServerFile();
+					if (filename != null && verifyDownload(filename)) {
+						streamOut.writeUTF("download"); // requests to download from server
+						streamOut.writeUTF(filename);
+						gui.setRequestingDownload(false);
+					}
+				}
+				else if (gui.isRequestingUpload()) {
+					selectedClientFile = gui.getSelectedClientFile();
+					streamOut.writeUTF("upload"); // requests to upload to server
+					streamOut.writeUTF(selectedClientFile);
+					gui.setRequestingUpload(false);
+				}
+				//streamOut.writeUTF(console.readLine());
+	            //streamOut.flush();
 	         }
 	         catch(IOException ioe){
 	        	 System.out.println("Sending error: " + ioe.getMessage());
@@ -62,6 +85,15 @@ public class Client implements Runnable{
 	    else
 	    	System.out.println(msg);
 	}
+	
+	public void uploadFile() {
+		try {
+			sendFile(selectedClientFile, streamOut);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public void start() throws IOException{
 		console   = new DataInputStream(System.in);
@@ -89,13 +121,60 @@ public class Client implements Runnable{
 	    clientThread.close();  
 	    clientThread.stop();
 	}
+	
+	public ClientGUI getGUI() {
+		return gui;
+	}
+	
+	public DataOutputStream getOutputStream() {
+		return streamOut;
+	}
+	
+	
+	public void updateGUILists(DataInputStream inputStream) {
+		ArrayList<String> serverList = new ArrayList<String>();
+		ArrayList<String> clientList = new ArrayList<String>(getFileList());
+		ArrayList<String> peerList = new ArrayList<String>();
+		int listSize;
+		try {
+			listSize = inputStream.readInt();
+			for (int i = 0; i < listSize; i++)
+				serverList.add(inputStream.readUTF());
+			/*listSize = inputStream.readInt();
+			for (int j = 0; j < listSize; j++)
+				peerList.add(inputStream.readUTF());*/
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		gui.updateLists(serverList, clientList, serverList);
+	}
+	
+	// gets current file list of clients directory
+	public ArrayList<String> getFileList() {
+		File f = new File(path);
+		ArrayList<File> files = new ArrayList<File>(Arrays.asList(f.listFiles()));
+		ArrayList<String> list = new ArrayList<String>();
+		for(int x = 0; x < files.size(); x++) {
+			if (!files.get(x).isDirectory()) 
+				list.add(files.get(x).getName());
+		}
+		return list;
+	}
+	
+	// verify that client doesn't already have the file it's attempting to download
+	public boolean verifyDownload(String s) {
+		ArrayList<String> list = new ArrayList<String>(getFileList());
+		if (!list.contains(s))
+			return true;
+		else return false;
+	}
 
-
+	
 	/***************
 	 * sendFile() takes a file name, ie:"test.txt" with extension and sends the
 	 * file to the client
 	 *******************/
-	public static void sendFile(String name, DataOutputStream request) throws IOException {
+	public void sendFile(String name, DataOutputStream request) throws IOException {
 
 		FileInputStream file_stream = null;
 		BufferedInputStream buffer_stream = null;
@@ -133,7 +212,7 @@ public class Client implements Runnable{
 		}
 	}
 	
-	private static File findFile(String name){
+	private File findFile(String name){
 		String file_path = path + "\\" + name;
 		File aFile = new File(file_path);
 		if (aFile.exists())
@@ -141,14 +220,15 @@ public class Client implements Runnable{
 		return null;
 	}
 
-	public static void receiveFile(DataInputStream request) throws IOException {
+	public void receiveFile(DataInputStream request) throws IOException {
 		int r_byt = 0;
 		String f_name = null;
 		long f_size = 0;
 		OutputStream writer = null;
 
 		try {
-			f_name = path.concat((Paths.get(request.readUTF())).getFileName().toString());
+			//f_name = path.concat("\\" + (Paths.get(request.readUTF())).getFileName().toString());
+			f_name = path + "\\" + request.readUTF();
 			f_size = request.readLong();
 			writer = new FileOutputStream(f_name);
 			byte[] r_buf = new byte[256];
@@ -169,7 +249,7 @@ public class Client implements Runnable{
 		}
 	}
 
-	public static void sendCmd(String input, DataOutputStream reply) throws IOException {
+	public void sendCmd(String input, DataOutputStream reply) throws IOException {
 		try {
 			byte[] buf = new byte[input.length()];
 			for (int i = 0; i < input.length(); i++)
@@ -181,7 +261,7 @@ public class Client implements Runnable{
 		}
 	}
 
-	public static void receiveMsg(DataInputStream request) throws IOException {
+	public void receiveMsg(DataInputStream request) throws IOException {
 		try {
 			int rec = 0;
 			int size = request.readInt();
@@ -195,7 +275,7 @@ public class Client implements Runnable{
 		}
 	}
 	
-	private static void createDirectory(Scanner input){
+	private void createDirectory(Scanner input){
 		boolean success = false;
 		String d_name = "";
 		while (!success){
@@ -231,7 +311,7 @@ public class Client implements Runnable{
 		
 	}
 	
-	private static void serverConnect(Scanner input){
+	private void serverConnect(Scanner input){
 		boolean success = false;
 		
 		while (!success){
@@ -278,8 +358,8 @@ public class Client implements Runnable{
 //		System.out.println("\t\tWelcome to the Client-Server FTP");
 //		
 //		out = s.getOutputStream();
-//			request = new DataOutputStream(out);
-//			reply = new DataInputStream(s.getInputStream());
+//		request = new DataOutputStream(out);
+//		reply = new DataInputStream(s.getInputStream());
 //		
 //		while (i != 0) {
 //			

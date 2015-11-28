@@ -184,6 +184,5 @@ public class ServerGUI {
 		lblNewLabel.setBounds(479, 94, 46, 14);
 		frame.getContentPane().add(lblNewLabel);
 		
-		
 	}
 }
