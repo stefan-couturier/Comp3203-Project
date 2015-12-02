@@ -40,12 +40,14 @@ public class ServerThread extends Thread {
 				} 
 				else if (received.equals("download")) {
 					String filename = inputStream.readUTF();
+					System.out.println("SERVERThread "+ ID + " Recieved:\t"+filename);
 					send("download"); // lets the clientThread get ready to download from server
 					System.out.println("SERVERThread "+ ID + " Sent:\tdownload");
 					server.handleDownload(ID, filename, outputStream);
 				} 
 				else if (received.equals("upload")) {
 					String filename = inputStream.readUTF();
+					System.out.println("SERVERThread "+ ID + " Recieved:\t"+filename);
 					if (server.verifyUpload(filename)) {
 						send("upload"); // lets the clientThread get ready to upload to server
 						System.out.println("SERVERThread "+ ID + " Sent:\tupload");

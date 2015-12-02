@@ -178,6 +178,8 @@ public class Server implements Runnable{
 					buffer_stream.close();
 				if (dataIn_stream != null)
 					dataIn_stream.close();
+
+				System.out.println("SERVER:\tFile Sent");
 			} catch (Exception e) {
 				System.err.println("--error: " + e.getMessage());
 			}
@@ -193,7 +195,7 @@ public class Server implements Runnable{
 		return null;
 	}
 
-	public boolean receiveFile(String path, DataInputStream request) throws IOException {
+	public synchronized boolean receiveFile(String path, DataInputStream request) throws IOException {
 		boolean status = true;
 		int r_byt = 0;
 		String f_name = null;
@@ -211,10 +213,11 @@ public class Server implements Runnable{
 			f_name = path.concat("\\" + (Paths.get(request.readUTF())).getFileName().toString());
 			System.out.println(f_name);
 			f_size = request.readLong();
-			writer = new FileOutputStream(f_name);
-			byte[] r_buf = new byte[256];
+			writer = new FileOutputStream(f_name);			
+			byte[] r_buf = new byte[4096*8];
 
 			while ((r_byt = request.read(r_buf, 0, (int) Math.min(r_buf.length, f_size))) != 1 && f_size > 0) {
+				System.out.println(f_size);
 				writer.write(r_buf, 0, r_byt);
 				f_size -= (long) r_byt;
 			}
@@ -225,6 +228,7 @@ public class Server implements Runnable{
 			try {
 				if (writer != null)
 					writer.close();
+				System.out.println("SERVER\tRecieved File "+f_name+" Fully");
 			} catch (Exception e) {
 				System.err.println("--error: " + e.getMessage());
 			}

@@ -149,11 +149,11 @@ public class ClientGUI {
 		return requestingRefresh;
 	}
 	
-	public void setRequestingDownload(boolean b) {
+	public synchronized void setRequestingDownload(boolean b) {
 		requestingDownload = b;
 	}
 	
-	public void setRequestingUpload(boolean b) {
+	public synchronized void setRequestingUpload(boolean b) {
 		requestingUpload = b;
 	}
 	

@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class Client implements Runnable{
 	private final static int PORT_NUM = 45000;
-	private static String IP_ADDRESS = "172.17.156.116";
+	private static String IP_ADDRESS = "134.117.28.138";
 	public static Socket s;
 	public static String path = "Z:\\NetTest";
 	
@@ -74,13 +74,13 @@ public class Client implements Runnable{
 			try{
 				// handle gui input and pass commands to ServerThread
 				if (gui == null){
-					System.out.println("Thread:\tNULL");
 					streamOut.writeUTF(".bye");
+					System.out.println("CLIENT sent:\t.bye");
 					stop();
 				}
 				else if (gui.isRequestingRefresh()) {
-					System.out.println("Thread:\tRefresh");
 					streamOut.writeUTF("update"); // requests updated lists from server
+					System.out.println("CLIENT sent:\tupdate");
 					gui.setRequestingRefresh(false);
 				}
 				else if (gui.isRequestingDownload()) {
@@ -88,15 +88,18 @@ public class Client implements Runnable{
 					String filename = gui.getSelectedServerFile();
 					if (filename != null && verifyDownload(filename)) {
 						streamOut.writeUTF("download"); // requests to download from server
+						System.out.println("CLIENT sent:\tdownload");
 						streamOut.writeUTF(filename);
-						gui.setRequestingDownload(false);
+						System.out.println("CLIENT sent:\t"+filename);
 					}
+					gui.setRequestingDownload(false);
 				}
 				else if (gui.isRequestingUpload()) {
-					System.out.println("Thread:\tUpload");
 					selectedClientFile = gui.getSelectedClientFile();
 					streamOut.writeUTF("upload"); // requests to upload to server
+					System.out.println("CLIENT sent:\tupload");
 					streamOut.writeUTF(selectedClientFile);
+					System.out.println("CLIENT sent:\t"+selectedClientFile);
 					gui.setRequestingUpload(false);
 				}
 				//streamOut.writeUTF(console.readLine());
@@ -214,7 +217,7 @@ public class Client implements Runnable{
 	 * sendFile() takes a file name, ie:"test.txt" with extension and sends the
 	 * file to the client
 	 *******************/
-	public void sendFile(String name, DataOutputStream request) throws IOException {
+	public synchronized void sendFile(String name, DataOutputStream request) throws IOException {
 
 		FileInputStream file_stream = null;
 		BufferedInputStream buffer_stream = null;
@@ -246,6 +249,8 @@ public class Client implements Runnable{
 					buffer_stream.close();
 				if (file_stream != null)
 					file_stream.close();
+				request.flush();
+				System.out.println("CLIENT\tsent:\t\tFile:"+name);
 			} catch (Exception e) {
 				System.err.println("--error: " + e.getMessage());
 			}
@@ -283,6 +288,7 @@ public class Client implements Runnable{
 			try {
 				if (writer != null)
 					writer.close();
+				System.out.println("CLIENT\t recieved:\t\tFile:"+f_name);
 			} catch(Exception e) {
 				System.err.println("--error: " + e.getMessage());
 			}
