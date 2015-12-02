@@ -10,7 +10,7 @@ public class Server implements Runnable{
 	private final static int PORT_NUM = 45000;
 	public static ServerSocket serv;
 	public static Socket clnt;
-	public static String root_dir = "Z:\\ServTest";
+	public static String root_dir = "Z:\\SERVER";
 	public static String path;
 	public static File current_file;
 
@@ -23,7 +23,7 @@ public class Server implements Runnable{
 
 	public Server(int port){
 		File[] roots = File.listRoots();
-		root_dir = roots[0].toString()+"\\SERVER";
+		//root_dir = roots[0].toString()+"\\SERVER";
 		path = root_dir;
 		gui = new ServerGUI();
 		try{

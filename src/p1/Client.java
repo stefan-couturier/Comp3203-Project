@@ -276,7 +276,7 @@ public class Client implements Runnable{
 			f_name = path + "\\" + request.readUTF();
 			f_size = request.readLong();
 			writer = new FileOutputStream(f_name);
-			byte[] r_buf = new byte[256];
+			byte[] r_buf = new byte[4096*16];
 
 			while ((r_byt = request.read(r_buf, 0, (int) Math.min(r_buf.length, f_size))) != 1 && f_size > 0) {
 				writer.write(r_buf, 0, r_byt);
