@@ -221,6 +221,10 @@ public class ClientGUI {
 		label_1.setText(portNumber+"");
 		
 	}
+	
+	public JFrame getFrame(){
+		return frame;
+	}
 
 	// Update lists
 	@SuppressWarnings("unchecked")

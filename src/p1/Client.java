@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class Client implements Runnable{
 	private final static int PORT_NUM = 45000;
-	private static String IP_ADDRESS = "134.117.28.138";
+	private static String IP_ADDRESS = "172.17.156.116";
 	public static Socket s;
 	public static String path = "Z:\\NetTest";
 	
@@ -19,12 +19,35 @@ public class Client implements Runnable{
 	private DataInputStream  console   = null;
 	private DataOutputStream streamOut = null;
 	private ClientGUI gui = null;
+	private UsernameDirectoryInfo udi = null;
 	
 	private String selectedClientFile;
 	
 	
 	public Client(String serverName, int serverPort){
+		File[] roots = File.listRoots();
+		path = roots[0].toString()+"\\CLIENT";
+		
 		gui = new ClientGUI();
+		
+		System.out.println("Establishing connection. Please wait ...");
+	      try
+	      {  socket = new Socket(serverName, serverPort);
+	         System.out.println("Connected: " + socket);
+	         start();
+	      }
+	      catch(UnknownHostException uhe)
+	      {  System.out.println("Host unknown: " + uhe.getMessage()); }
+	      catch(IOException ioe)
+	      {  System.out.println("Unexpected exception: " + ioe.getMessage()); }
+	}
+	
+	public Client(String serverName, int serverPort, String PATH, String user){
+		//File[] roots = File.listRoots();
+		//path = roots[0].toString()+"\\CLIENT";
+		path = PATH;
+		gui = new ClientGUI();
+		gui.getFrame().setTitle(user);
 		System.out.println("Establishing connection. Please wait ...");
 	      try
 	      {  socket = new Socket(serverName, serverPort);

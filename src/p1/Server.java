@@ -22,6 +22,9 @@ public class Server implements Runnable{
 
 
 	public Server(int port){
+		File[] roots = File.listRoots();
+		root_dir = roots[0].toString()+"\\SERVER";
+		path = root_dir;
 		gui = new ServerGUI();
 		try{
 			System.out.println("Binding to port " + port + ", please wait  ...");

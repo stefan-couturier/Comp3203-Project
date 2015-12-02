@@ -8,6 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -29,6 +30,8 @@ public class UsernameDirectoryInfo extends JPanel {
 	private JFileChooser fileChooser;
 	private File fileChosen;
 	private String username;
+	
+	private boolean clientInfoReady = false;
 
 	UsernameDirectoryInfo() 
 	{
@@ -118,15 +121,22 @@ public class UsernameDirectoryInfo extends JPanel {
 	}
 
 	public void verifyProceed() {
+		
 		username = usernameInput.getText();
+		username = username.trim();
+		String path = fileChosen.getAbsolutePath();
 		if (username.equals("")) {
-			// need to enter username
+			JOptionPane.showMessageDialog(frame, "Need valid username.");
 		}
 		else if (fileChosen == null || !fileChosen.isDirectory() || 
 				!fileChosen.canWrite() || !fileChosen.canRead()) {
 			// can't use that directory
 		} else {
+			String ip = JOptionPane.showInputDialog("Please input IP of the Server: ");
+			Client c = new Client(ip, 45000, path, username);
+			frame.dispose();
 			// good to go
+			
 		}
 	}
 
@@ -159,5 +169,7 @@ public class UsernameDirectoryInfo extends JPanel {
 			}
 		});
 	}
+
+	public boolean isClientInfoReady() { return clientInfoReady; }
 
 }
