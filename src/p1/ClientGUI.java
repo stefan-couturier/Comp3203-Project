@@ -88,7 +88,6 @@ public class ClientGUI {
 		selectedPeer = null;
 		requestingDownload = false;
 		requestingUpload = false;
-		requestingRefresh = true;
 		
 		initiateButtonListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
