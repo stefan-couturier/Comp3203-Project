@@ -9,7 +9,7 @@ public class Server implements Runnable{
 	private final static int PORT_NUM = 45000;
 	public static ServerSocket serv;
 	public static Socket clnt;
-	public static String root_dir = "C:\\Users\\Andrew\\Test";
+	public static String root_dir = "Z:\\ServTest";
 	public static String path;
 	public static File current_file;
 
@@ -17,9 +17,11 @@ public class Server implements Runnable{
 	private ServerSocket server = null;
 	private Thread       thread = null;
 	private int clientCount = 0;
+	private ServerGUI gui = null;
 
 
 	public Server(int port){
+		gui = new ServerGUI();
 		try{
 			System.out.println("Binding to port " + port + ", please wait  ...");
 			server = new ServerSocket(port);  
@@ -31,14 +33,16 @@ public class Server implements Runnable{
 		}
 	}
 
-	public void run()
-	{  while (thread != null)
-	{  try
-	{  System.out.println("Waiting for an awesome client ..."); 
-	addThread(server.accept()); }
-	catch(IOException ioe)
-	{  System.out.println("Server accept error: " + ioe); stop(); }
-	}
+	public void run(){
+		while (thread != null){
+			try{
+				System.out.println("Waiting for an awesome client ..."); 
+				addThread(server.accept());
+			}
+			catch(IOException ioe){
+					System.out.println("Server accept error: " + ioe); stop();
+			}
+		}
 	}
 
 	public void start(){
@@ -158,6 +162,7 @@ public class Server implements Runnable{
 			reply.writeUTF(file.getName());
 			reply.writeLong((long) byte_array.length);
 			reply.write(byte_array, 0, byte_array.length);
+			reply.flush();
 		} catch (Exception e) {
 			System.err.println("--error: " + e.getMessage());
 			status = false;
@@ -311,11 +316,16 @@ public class Server implements Runnable{
 		try {
 			// so client knows how many file names to expect
 			outputStream.writeInt(list.size());
-			for (int i=0; i < list.size(); i++)
+			System.out.println("SERVER Sent:\t"+list.size());
+			for (int i=0; i < list.size(); i++){
 				outputStream.writeUTF(list.get(i));
+				System.out.println("SERVER Sent:\t"+list.get(i));
+			}
+			outputStream.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 	public ArrayList<String> getFileList() {

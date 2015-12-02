@@ -21,7 +21,9 @@ public class ClientThread extends Thread {
 		while(true) {
 			try {
 				// handle responses from server and tell client class what to do
+				System.out.println("CLIENTThread waiting...");
 				received = inputStream.readUTF();
+				System.out.println("CLIENTThread Recieved:\t"+received);
 				
 				if (received.equals("update"))
 					client.updateGUILists(inputStream);
@@ -38,6 +40,7 @@ public class ClientThread extends Thread {
 				//client.stop();
 				return;
 			}
+			
 		}
 	}
 	

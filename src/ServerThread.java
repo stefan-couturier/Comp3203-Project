@@ -30,24 +30,30 @@ public class ServerThread extends Thread {
 				
 				// serverThread does the 'receiving' from client, and then tells server what to do
 				received = inputStream.readUTF();
+				System.out.println("SERVERThread "+ ID + " Recieved:\t"+received);
 				
 				if (received.equals("update")) {
 					send("update"); // lets clientThread get ready to receive updated lists
+					System.out.println("SERVERThread "+ ID + " Sent:\tupdate");
 					server.handleUpdateLists(ID, outputStream);
 				} 
 				else if (received.equals("download")) {
 					String filename = inputStream.readUTF();
 					send("download"); // lets the clientThread get ready to download from server
+					System.out.println("SERVERThread "+ ID + " Sent:\tdownload");
 					server.handleDownload(ID, filename, outputStream);
 				} 
 				else if (received.equals("upload")) {
 					String filename = inputStream.readUTF();
 					if (server.verifyUpload(filename)) {
 						send("upload"); // lets the clientThread get ready to upload to server
+						System.out.println("SERVERThread "+ ID + " Sent:\tupload");
 						server.handleUpload(ID, filename, inputStream);
 					}
-					else
+					else{
 						send("noupload");
+						System.out.println("SERVERThread "+ ID + " Sent:\tnoupload");
+					}
 				}
 				
 			}

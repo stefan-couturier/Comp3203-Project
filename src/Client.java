@@ -8,16 +8,16 @@ import java.util.Scanner;
 
 public class Client implements Runnable{
 	private final static int PORT_NUM = 45000;
-	private static String IP_ADDRESS = "192.168.2.10";
+	private static String IP_ADDRESS = "134.117.28.138";
 	public static Socket s;
-	public static String path = "C:\\Users\\Andrew\\Test\\Wicked";
+	public static String path = "Z:\\NetTest";
 	
 	private Thread thread = null;
 	private ClientThread clientThread = null;
 	private Socket  socket   = null;
 	private DataInputStream  console   = null;
 	private DataOutputStream streamOut = null;
-	private ClientGUI gui = null;	
+	private ClientGUI gui = null;
 	
 	private String selectedClientFile;
 	
@@ -49,11 +49,18 @@ public class Client implements Runnable{
 		while (thread != null){
 			try{
 				// handle gui input and pass commands to ServerThread
-				if (gui.isRequestingRefresh()) {
+				if (gui == null){
+					System.out.println("Thread:\tNULL");
+					streamOut.writeUTF(".bye");
+					stop();
+				}
+				else if (gui.isRequestingRefresh()) {
+					System.out.println("Thread:\tRefresh");
 					streamOut.writeUTF("update"); // requests updated lists from server
 					gui.setRequestingRefresh(false);
 				}
 				else if (gui.isRequestingDownload()) {
+					System.out.println("Thread:\tDownload");
 					String filename = gui.getSelectedServerFile();
 					if (filename != null && verifyDownload(filename)) {
 						streamOut.writeUTF("download"); // requests to download from server
@@ -62,13 +69,14 @@ public class Client implements Runnable{
 					}
 				}
 				else if (gui.isRequestingUpload()) {
+					System.out.println("Thread:\tUpload");
 					selectedClientFile = gui.getSelectedClientFile();
 					streamOut.writeUTF("upload"); // requests to upload to server
 					streamOut.writeUTF(selectedClientFile);
 					gui.setRequestingUpload(false);
 				}
 				//streamOut.writeUTF(console.readLine());
-	            //streamOut.flush();
+	            streamOut.flush();
 	         }
 	         catch(IOException ioe){
 	        	 System.out.println("Sending error: " + ioe.getMessage());
@@ -98,6 +106,9 @@ public class Client implements Runnable{
 	public void start() throws IOException{
 		console   = new DataInputStream(System.in);
 	    streamOut = new DataOutputStream(socket.getOutputStream());
+	    gui.setIPAddress(IP_ADDRESS);
+	    gui.setPortNumber(PORT_NUM);
+	    System.out.println(1);
 	    if (thread == null){
 	    	clientThread = new ClientThread(this, socket);
 	        thread = new Thread(this);                   
@@ -107,7 +118,7 @@ public class Client implements Runnable{
 	
 	public void stop(){
 		if (thread != null){
-			thread.stop();  
+			thread.stop(); 
 	        thread = null;
 	    }
 	    try{
@@ -138,15 +149,20 @@ public class Client implements Runnable{
 		int listSize;
 		try {
 			listSize = inputStream.readInt();
-			for (int i = 0; i < listSize; i++)
+			System.out.println("CLIENT recieved:\t"+listSize);
+			for (int i = 0; i < listSize; i++){
 				serverList.add(inputStream.readUTF());
+				System.out.println("CLIENT Recieved:\t"+serverList.get(i));
+			}
 			/*listSize = inputStream.readInt();
 			for (int j = 0; j < listSize; j++)
 				peerList.add(inputStream.readUTF());*/
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("CLIENT:\t"+clientList);
 		gui.updateLists(serverList, clientList, serverList);
+		
 	}
 	
 	// gets current file list of clients directory

@@ -31,6 +31,7 @@ public class ServerGUI {
 	 */
 	public ServerGUI() {
 		initialize();
+		frame.setVisible(true);
 	}
 
 	/**

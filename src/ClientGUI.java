@@ -23,14 +23,18 @@ public class ClientGUI {
 	private JLabel label_1;
 	private JLabel lblConnectionStatus;
 	private JLabel lblFilesOnServer;
-	private JList serverFileList;
-	private JList clientFileList;
-	private JList peerList;
+	private JList<String> serverFileList;
+	private JList<String> clientFileList;
+	private JList<String> peerList;
 	private JButton btnDownloadAFile;
 	private JLabel lblFilesOnSystem;
 	private JButton btnUploadAFile;
 	private JLabel lblOnlinePeers;
 	private JButton btnChat;
+	
+	private String IPAddress = "0.0.0.0";
+	private int portNumber = 0;
+	
 	
 	private String selectedServerFile;
 	private String selectedClientFile;
@@ -132,15 +136,15 @@ public class ClientGUI {
 	}
 	
 	
-	public boolean isRequestingDownload() {
+	public synchronized boolean isRequestingDownload() {
 		return requestingDownload;
 	}
 	
-	public boolean isRequestingUpload() {
+	public synchronized boolean isRequestingUpload() {
 		return requestingUpload;
 	}
 	
-	public boolean isRequestingRefresh() {
+	public synchronized boolean isRequestingRefresh() {
 		return requestingRefresh;
 	}
 	
@@ -152,7 +156,7 @@ public class ClientGUI {
 		requestingUpload = b;
 	}
 	
-	public void setRequestingRefresh(boolean b) {
+	public synchronized void setRequestingRefresh(boolean b) {
 		requestingRefresh = b;
 	}
 	
@@ -168,6 +172,7 @@ public class ClientGUI {
 	}
 	
 	public void requestRefresh() {
+		System.out.println("Refresh");
 		requestingRefresh = true;
 	}
 	
@@ -196,11 +201,30 @@ public class ClientGUI {
 	public String getSelectedPeer() {
 		return selectedPeer;
 	}
+	
+	public String getIPAddress() {
+		return IPAddress;
+	}
 
+	public void setIPAddress(String iPAddress) {
+		IPAddress = iPAddress;
+		label.setText(IPAddress);
+	}
+
+	public int getPortNumber() {
+		return portNumber;
+	}
+
+	public void setPortNumber(int portNumber) {
+		this.portNumber = portNumber;
+		label_1.setText(portNumber+"");
+		
+	}
 
 	// Update lists
 	@SuppressWarnings("unchecked")
 	public void updateLists(ArrayList<String> s, ArrayList<String> c, ArrayList<String> p) {
+		System.out.println("CLIENT GUI:\tupdateLists");
 		disableListeners();
 		selectedServerFile = null;
 		selectedClientFile = null;
@@ -296,9 +320,9 @@ public class ClientGUI {
 		lblIpAddress.setBounds(400, 30, 81, 14);
 		frame.getContentPane().add(lblIpAddress);
 		
-		label = new JLabel("0.0.0.0");
+		label = new JLabel(IPAddress);
 		label.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		label.setBounds(550, 29, 88, 14);
+		label.setBounds(550, 29, 98, 14);
 		frame.getContentPane().add(label);
 		
 		lblPortNumber = new JLabel("Port Number: ");
@@ -306,7 +330,7 @@ public class ClientGUI {
 		lblPortNumber.setBounds(400, 60, 81, 14);
 		frame.getContentPane().add(lblPortNumber);
 		
-		label_1 = new JLabel("45000");
+		label_1 = new JLabel(portNumber+"");
 		label_1.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		label_1.setBounds(550, 61, 46, 14);
 		frame.getContentPane().add(label_1);
@@ -321,7 +345,7 @@ public class ClientGUI {
 		lblFilesOnServer.setBounds(27, 166, 109, 14);
 		frame.getContentPane().add(lblFilesOnServer);
 		
-		serverFileList = new JList();
+		serverFileList = new JList<String>();
 		serverFileList.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		//serverFileList.setPrototypeCellValue("--------------------------");
 		serverFileList.setBounds(27, 191, 138, 146);
@@ -348,7 +372,7 @@ public class ClientGUI {
 		lblFilesOnSystem.setBounds(243, 166, 109, 14);
 		frame.getContentPane().add(lblFilesOnSystem);
 		
-		clientFileList = new JList();
+		clientFileList = new JList<String>();
 		clientFileList.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		clientFileList.setBounds(243, 191, 138, 146);
 		frame.getContentPane().add(clientFileList);
@@ -373,7 +397,7 @@ public class ClientGUI {
 		lblOnlinePeers.setBounds(452, 166, 109, 14);
 		frame.getContentPane().add(lblOnlinePeers);
 		
-		peerList = new JList();
+		peerList = new JList<String>();
 		peerList.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		peerList.setBounds(452, 191, 138, 146);
 		frame.getContentPane().add(peerList);
@@ -383,5 +407,6 @@ public class ClientGUI {
 		btnChat.setBounds(452, 355, 125, 23);
 		frame.getContentPane().add(btnChat);
 	}
+	
 	
 }
