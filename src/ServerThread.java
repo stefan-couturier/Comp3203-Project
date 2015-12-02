@@ -32,9 +32,8 @@ public class ServerThread extends Thread {
 				received = inputStream.readUTF();
 				
 				if (received.equals("update")) {
-					System.out.println("received update request");
 					send("update"); // lets clientThread get ready to receive updated lists
-					server.handleUpdateLists(ID);
+					server.handleUpdateLists(ID, outputStream);
 				} 
 				else if (received.equals("download")) {
 					String filename = inputStream.readUTF();
@@ -84,7 +83,7 @@ public class ServerThread extends Thread {
 		}
 	}
 
-	public void sendFileList(ArrayList<String> list) {
+	/*public void sendFileList(ArrayList<String> list) {
 		try {
 			// so client knows how many file names to expect
 			outputStream.writeInt(list.size());
@@ -93,5 +92,5 @@ public class ServerThread extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 }

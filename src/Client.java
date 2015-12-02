@@ -17,7 +17,7 @@ public class Client implements Runnable{
 	private Socket  socket   = null;
 	private DataInputStream  console   = null;
 	private DataOutputStream streamOut = null;
-	private ClientGUI gui = null;
+	private ClientGUI gui = null;	
 	
 	private String selectedClientFile;
 	

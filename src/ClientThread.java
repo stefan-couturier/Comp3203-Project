@@ -43,14 +43,13 @@ public class ClientThread extends Thread {
 	
 	//Open the thread
 	public void open() {
-		{  try
-	      {  inputStream  = new DataInputStream(socket.getInputStream());
-	      }
-	      catch(IOException ioe)
-	      {  System.out.println("Error getting input stream: " + ioe);
-	         //client.stop();
-	      }
-	   }
+		try {
+			inputStream  = new DataInputStream(socket.getInputStream());
+		}
+	    catch(IOException ioe) {
+	    	System.out.println("Error getting input stream: " + ioe);
+	        //client.stop();
+	    }
 	}
 	
 	//Close the thread

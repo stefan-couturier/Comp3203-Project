@@ -71,9 +71,10 @@ public class Server implements Runnable{
 	}
 	
 	// this is to send updated lists to a client when requested from client
-	public synchronized void handleUpdateLists(int ID) {
+	public synchronized void handleUpdateLists(int ID, DataOutputStream outputStream) {
 		// TODO: sendFileList() should maybe be in this server class instead of serverThread
-		clients[findClient(ID)].sendFileList(getFileList());
+		//clients[findClient(ID)].sendFileList(getFileList());
+		sendFileList(getFileList(), outputStream);
 	}
 	
 	// this send a file to client when they request to download a file
@@ -153,7 +154,7 @@ public class Server implements Runnable{
 
 			dataIn_stream.readFully(byte_array, 0, byte_array.length);
 
-			reply.writeBoolean(true);
+			//reply.writeBoolean(true);
 			reply.writeUTF(file.getName());
 			reply.writeLong((long) byte_array.length);
 			reply.write(byte_array, 0, byte_array.length);
@@ -304,6 +305,17 @@ public class Server implements Runnable{
 			s += "\n";
 		}
 		return s;
+	}
+	
+	public void sendFileList(ArrayList<String> list, DataOutputStream outputStream) {
+		try {
+			// so client knows how many file names to expect
+			outputStream.writeInt(list.size());
+			for (int i=0; i < list.size(); i++)
+				outputStream.writeUTF(list.get(i));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public ArrayList<String> getFileList() {
