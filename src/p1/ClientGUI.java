@@ -182,6 +182,7 @@ public class ClientGUI {
 		timerTick = new ActionListener() {
 			public void actionPerformed(ActionEvent event){
 				requestRefresh();
+				System.out.println("tick");
 			}
 		};
 		

@@ -186,6 +186,7 @@ public class Client extends JPanel implements Runnable {
 			thread.stop(); 
 	        thread = null;
 	    }
+		System.out.println("Try");
 	    try{
 	    	if (console   != null)  console.close();
 	        if (streamOut != null)  streamOut.close();
@@ -195,6 +196,7 @@ public class Client extends JPanel implements Runnable {
 	    	System.out.println("Error closing ..."); 
 	    }
 	    gui.getFrame().dispose();
+	    System.out.println("Try again");
 	    clientThread.close();  
 	    clientThread.stop();
 	}

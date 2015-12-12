@@ -50,7 +50,7 @@ public class ClientThread extends Thread {
 				}
 
 				else if (received.equals("TERMINATE")){
-					//client.terminate();
+					client.stop();
 				}
 				else if (received.equals("message")){
 					String message = inputStream.readUTF();
