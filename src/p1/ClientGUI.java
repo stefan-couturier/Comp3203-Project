@@ -75,6 +75,9 @@ public class ClientGUI {
 	private ActionListener postButtonListener;
 	private ActionListener respondButtonListener;
 	private ListSelectionListener fileRequestListSelectionListener;
+	
+	Timer timer;
+	private ActionListener timerTick;
 
 	/**
 	 * Launch the application.
@@ -101,6 +104,7 @@ public class ClientGUI {
 		peers = new ArrayList<String>();
 		fileRequests = new ArrayList<String>();
 		
+		timer = new Timer(5000, null);	
 		//peers.add("//TODO:");
 		
 		selectedServerFile = null;
@@ -172,9 +176,16 @@ public class ClientGUI {
 			}
 		};
 		
+		timerTick = new ActionListener() {
+			public void actionPerformed(ActionEvent event){
+				requestRefresh();
+			}
+		};
+		
 		initialize();
 		this.frame.setVisible(true);
 		enableListeners();
+		timer.start();
 	}
 	
 	
@@ -370,6 +381,8 @@ public class ClientGUI {
 		btnPostRequest.addActionListener(postButtonListener);
 		btnRespondToRequest.addActionListener(respondButtonListener);
 		fileRequestList.addListSelectionListener(fileRequestListSelectionListener);
+		
+		timer.addActionListener(timerTick);
 	}
 
 
@@ -385,6 +398,8 @@ public class ClientGUI {
 		btnPostRequest.removeActionListener(postButtonListener);
 		btnRespondToRequest.removeActionListener(respondButtonListener);
 		fileRequestList.removeListSelectionListener(fileRequestListSelectionListener);
+		
+		timer.removeActionListener(timerTick);
 	}
 
 
