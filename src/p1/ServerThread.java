@@ -13,7 +13,9 @@ public class ServerThread extends Thread {
 
 	// username of corresponding client
 	private String username;
+	private ArrayList<String> files;
 	public String getUsername() { return username; }
+	public ArrayList<String> getFiles() {return files;}
 	
 	public ServerThread(Server _server, Socket _socket){
 		super();
@@ -50,6 +52,9 @@ public class ServerThread extends Thread {
 				if (received.equals("update")) {
 					send("update"); // lets clientThread get ready to receive updated lists
 					System.out.println("SERVERThread "+ ID + " Sent:\tupdate");
+					
+					//receive file list
+					
 					server.handleUpdateLists(ID, outputStream);
 				} 
 				else if (received.equals("download")) {
@@ -86,6 +91,24 @@ public class ServerThread extends Thread {
 					for(int i=0; i<server.getClientCount();i++){
 						server.getThread(i).send("message");
 						server.getThread(i).send(m);
+					}
+				}
+				else if (received.equals("getPeerFileList")){
+					String peerName = inputStream.readUTF();
+					System.out.println("SERVERThread "+ ID + " Recieved:\t"+peerName);
+					server.handleGetPeerFiles(ID,peerName,outputStream);
+				}
+				else if (received.equals("fileList")){
+					try {
+						files = new ArrayList<String>();
+						int listSize = inputStream.readInt();
+						System.out.println("SERVERThread "+ ID + " Recieved:\t"+listSize+" files on client");
+						for (int i = 0; i < listSize; i++){
+							files.add(inputStream.readUTF());
+							System.out.println("SERVERThread "+ ID + " Recieved:\tFilename: "+files.get(i));
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
 				

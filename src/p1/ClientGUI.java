@@ -51,6 +51,7 @@ public class ClientGUI {
 	private boolean requestingRefresh;
 	private boolean requestingPeerFile;
 	private boolean requestingSendToChat;
+	private boolean requestingPeerFileList;
 	
 	private ArrayList<String> serverFiles;
 	private ArrayList<String> clientFiles;
@@ -107,7 +108,7 @@ public class ClientGUI {
 		peerFiles = new ArrayList<String>();
 		fileRequests = new ArrayList<String>();
 		
-		timer = new Timer(5000, null);	
+		//timer = new Timer(5000, null);	
 		//peers.add("//TODO:");
 		
 		selectedServerFile = null;
@@ -178,11 +179,11 @@ public class ClientGUI {
 			}
 		};
 		
-		timerTick = new ActionListener() {
-			public void actionPerformed(ActionEvent event){
-				requestRefresh();
-			}
-		};
+//		timerTick = new ActionListener() {
+//			public void actionPerformed(ActionEvent event){
+//				requestRefresh();
+//			}
+//		};
 		
 		sendButtonListener = new ActionListener(){
 			public void actionPerformed(ActionEvent event){
@@ -195,7 +196,7 @@ public class ClientGUI {
 		initialize();
 		this.frame.setVisible(true);
 		enableListeners();
-		timer.start();
+//		timer.start();
 	}
 	
 	
@@ -213,6 +214,10 @@ public class ClientGUI {
 
 	public synchronized boolean isRequestingPeerFile() {
 		return requestingPeerFile;
+	}
+	
+	public synchronized boolean isRequestingPeerFileList() {
+		return requestingPeerFileList;
 	}
 	
 	public synchronized void setRequestingDownload(boolean b) {
@@ -239,6 +244,10 @@ public class ClientGUI {
 		requestingSendToChat = b;
 	}
 	
+	public synchronized void setRequestingPeerFileList(boolean b) {
+		requestingPeerFileList = b;
+	}
+	
 	public void requestDownload() {
 		if (selectedServerFile != null)
 			requestingDownload = true;
@@ -261,6 +270,12 @@ public class ClientGUI {
 		}
 	}
 	
+	public void requestPeerFileList() {
+		if (selectedPeer != null) {
+			requestingPeerFileList = true;
+		}
+	}
+	
 	public void selectServerFile() {
 		selectedServerFile = (String) serverFileList.getSelectedValue();
 	}
@@ -272,6 +287,7 @@ public class ClientGUI {
 	
 	public void selectPeer() {
 		selectedPeer = (String) peerList.getSelectedValue();
+		requestPeerFileList();
 	}
 	
 	public void selectPeerFile() {
@@ -405,7 +421,7 @@ public class ClientGUI {
 		peerFileList.addListSelectionListener(peerFilesListSelectionListener);
 		btnSend.addActionListener(sendButtonListener);
 		
-		timer.addActionListener(timerTick);
+//		timer.addActionListener(timerTick);
 	}
 
 
@@ -420,6 +436,8 @@ public class ClientGUI {
 		peerFileList.removeListSelectionListener(peerFilesListSelectionListener);
 		btnSend.removeActionListener(sendButtonListener);
 		timer.removeActionListener(timerTick);
+		
+//		timer.removeActionListener(timerTick);
 	}
 
 
