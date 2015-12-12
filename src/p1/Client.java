@@ -139,6 +139,17 @@ public class Client extends JPanel implements Runnable {
 					}
 					gui.setRequestingPeerFileList(false);
 				}
+				else if (gui.isRequestingPeerFile()) {
+					String peerFile = gui.getSelectedPeerFile();
+					if (peerFile != null) {
+						streamOut.writeUTF("getPeerFile");
+						streamOut.writeUTF(gui.getSelectedPeer());
+						streamOut.writeUTF(peerFile);
+						streamOut.writeUTF(InetAddress.getLocalHost().getHostAddress());
+						streamOut.flush();
+					}
+					gui.setRequestingPeerFile(false);
+				}
 				//streamOut.writeUTF(console.readLine());
 	            streamOut.flush();
 	         }
@@ -362,11 +373,11 @@ public class Client extends JPanel implements Runnable {
 		gui.updateClientList(getFileList());
 	}
 	
-	public void sendP2PFile(String ipAdd) throws IOException {
+	public void sendP2PFile(String ipAdd, String filename) throws IOException {
 		String IP = ipAdd;
 		int port = 60000;
 		
-		File fileChosen = null;
+		/*File fileChosen = null;
 		String filePath = "";
 		JFileChooser fileChooser = new JFileChooser(); 
 		fileChooser.setCurrentDirectory(new java.io.File(path));
@@ -378,8 +389,8 @@ public class Client extends JPanel implements Runnable {
 		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 			fileChosen = fileChooser.getSelectedFile();
 			filePath = fileChosen.getAbsolutePath();
-		}
-		P2PClient p2p = new P2PClient(IP, port, "", filePath);
+		}*/
+		P2PClient p2p = new P2PClient(IP, port, path, filename);
 		p2p.run();
 	}
 

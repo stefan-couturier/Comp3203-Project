@@ -131,6 +131,24 @@ public class Server implements Runnable{
 		}
 	}
 	
+	public synchronized void handleGetPeerFile(int ID, String filename,
+			String peerName, String ip, DataOutputStream outputStream){
+		int peerID;
+		peerID = findClientByUsername(peerName);
+		clients[peerID].send("sendPeerFile");
+		clients[peerID].send(ip);
+		clients[peerID].send(filename);
+		
+		/*try{
+			
+			//outputStream.writeUTF("sendPeerFile");
+			//outputStream.writeUTF(ip);
+			//outputStream.writeUTF(filename);
+		}catch (IOException e){
+			e.printStackTrace();
+		}*/
+	}
+	
 	
 	public synchronized void remove(int ID){
 		int pos = findClient(ID);

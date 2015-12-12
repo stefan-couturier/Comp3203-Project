@@ -60,8 +60,8 @@ public class P2PClient {
 		DataInputStream dataIn_stream = null;
 		dataIn_stream = null;
 
-		//String file_path = path + "\\" + name;
-		String file_path = fileToSend;
+		String file_path = path + "\\" + fileToSend;
+		//String file_path = fileToSend;
 		
 		File file = new File(file_path);
 		byte[] byte_array = new byte[(int) file.length()];

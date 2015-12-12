@@ -111,6 +111,15 @@ public class ServerThread extends Thread {
 						e.printStackTrace();
 					}
 				}
+				else if (received.equals("getPeerFile")) {
+					String peerName = inputStream.readUTF();
+					String peerFile = inputStream.readUTF();
+					String ipAdd = inputStream.readUTF();
+					//int n = server.find
+					
+					send("receivePeerFile");
+					server.handleGetPeerFile(ID, peerFile, peerName, ipAdd, outputStream);
+				}
 				
 			}
 			catch(IOException ioe)

@@ -108,7 +108,7 @@ public class ClientGUI {
 		peerFiles = new ArrayList<String>();
 		fileRequests = new ArrayList<String>();
 		
-		//timer = new Timer(5000, null);	
+		timer = new Timer(5000, null);	
 		//peers.add("//TODO:");
 		
 		selectedServerFile = null;
@@ -179,11 +179,11 @@ public class ClientGUI {
 			}
 		};
 		
-//		timerTick = new ActionListener() {
-//			public void actionPerformed(ActionEvent event){
-//				requestRefresh();
-//			}
-//		};
+		timerTick = new ActionListener() {
+			public void actionPerformed(ActionEvent event){
+				requestRefresh();
+			}
+		};
 		
 		sendButtonListener = new ActionListener(){
 			public void actionPerformed(ActionEvent event){
@@ -196,7 +196,7 @@ public class ClientGUI {
 		initialize();
 		this.frame.setVisible(true);
 		enableListeners();
-//		timer.start();
+		timer.start();
 	}
 	
 	
@@ -265,7 +265,7 @@ public class ClientGUI {
 	}
 
 	public void requestPeerFile() {
-		if (selectedPeer != null && selectedPeerFile != null) {
+		if (selectedPeerFile != null) {
 			requestingPeerFile = true;
 		}
 	}
@@ -420,8 +420,8 @@ public class ClientGUI {
 		peerList.addListSelectionListener(peerListSelectionListener);
 		peerFileList.addListSelectionListener(peerFilesListSelectionListener);
 		btnSend.addActionListener(sendButtonListener);
-		
-//		timer.addActionListener(timerTick);
+		btnChat.addActionListener(downloadPeerFileButtonListener);
+		timer.addActionListener(timerTick);
 	}
 
 
@@ -436,8 +436,8 @@ public class ClientGUI {
 		peerFileList.removeListSelectionListener(peerFilesListSelectionListener);
 		btnSend.removeActionListener(sendButtonListener);
 		timer.removeActionListener(timerTick);
-		
-//		timer.removeActionListener(timerTick);
+		btnChat.removeActionListener(downloadPeerFileButtonListener);
+		//timer.removeActionListener(timerTick);
 	}
 
 
