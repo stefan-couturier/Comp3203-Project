@@ -48,6 +48,7 @@ public class Client extends JPanel implements Runnable {
 	public Client(String serverName, int serverPort, String PATH, String user){
 		path = PATH;
 		username = user;
+		IP_ADDRESS = serverName;
 		gui = new ClientGUI();
 		gui.getFrame().setTitle(user);
 		System.out.println("Establishing connection. Please wait ...");
