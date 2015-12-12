@@ -13,6 +13,7 @@ import java.awt.Font;
 public class ServerGUI {
 
 	private JFrame frame;
+	private Server theServer;
 	private boolean TERMINATING;
 
 	/**
@@ -22,7 +23,7 @@ public class ServerGUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ServerGUI window = new ServerGUI();
+					ServerGUI window = new ServerGUI(null);
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -34,8 +35,9 @@ public class ServerGUI {
 	/**
 	 * Create the application.
 	 */
-	public ServerGUI() {
+	public ServerGUI(Server s) {
 		TERMINATING = false;
+		theServer = s;
 		initialize();
 		frame.setVisible(true);
 	}
@@ -74,6 +76,7 @@ public class ServerGUI {
             public void windowClosing(WindowEvent e) {
                 System.out.println("SERVERGUI:\tclosing...");
                 TERMINATING = true;
+                theServer.stop();
             }
         });
 		

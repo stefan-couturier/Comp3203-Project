@@ -31,10 +31,14 @@ public class Server implements Runnable{
 
 	public Server(int port){
 		File[] roots = File.listRoots();
-		root_dir = roots[0].toString();		
+		root_dir = roots[0].toString();
+		////////
+		root_dir = "Z:\\";
+		System.out.println("!"+root_dir+"!");
+		////////
 		createDirectory();
 		
-		gui = new ServerGUI();
+		gui = new ServerGUI(this);
 		try{
 			System.out.println("Binding to port " + port + ", please wait  ...");
 			server = new ServerSocket(port);  
@@ -56,13 +60,6 @@ public class Server implements Runnable{
 					System.out.println("Server accept error: " + ioe);
 					stop();
 			}
-			if (gui.isTERMINATING()){
-				System.out.println("SERVER:\tClosing");
-				for(int x =0; x< clientCount; x++){
-					clients[x].send("TERMINATE");
-				}
-				stop();
-			}
 		}
 		
 	}
@@ -75,10 +72,23 @@ public class Server implements Runnable{
 	}
 	public void stop(){
 		if (thread != null){
+			System.out.println("SERVER:\tClosing");
+			for(int x =0; x< clientCount; x++){
+				clients[x].send("TERMINATE");
+			}
+			
+			try{
+				server.close();
+			} catch (IOException ioe){
+				System.out.println("Server STOP error: " + ioe);
+			}
+			
 			thread.stop(); 
 			thread = null;
+			
 		}
 	}
+	
 	private int findClient(int ID){
 		for (int i = 0; i < clientCount; i++)
 			if (clients[i].getID() == ID)
