@@ -46,9 +46,11 @@ public class ClientGUI {
 	private String selectedServerFile;
 	private String selectedClientFile;
 	private String selectedPeer;
+	private String selectedPeerFile;
 	private boolean requestingDownload;
 	private boolean requestingUpload;
 	private boolean requestingRefresh;
+	private boolean requestingPeerFile;
 	
 	private ArrayList<String> serverFiles;
 	private ArrayList<String> clientFiles;
@@ -59,9 +61,11 @@ public class ClientGUI {
 	private ActionListener terminateButtonListener;
 	private ActionListener downloadButtonListener;
 	private ActionListener uploadButtonListener;
+	private ActionListener downloadPeerFileButtonListener;
 	private ListSelectionListener serverFileListSelectionListener;
 	private ListSelectionListener clientFileListSelectionListener;
 	private ListSelectionListener peerListSelectionListener;
+	private ListSelectionListener peerFilesListSelectionListener;
 	
 	private JLabel lblFileRequests;
 	private JList<String> fileRequestList;
@@ -102,6 +106,7 @@ public class ClientGUI {
 		serverFiles = new ArrayList<String>();
 		clientFiles = new ArrayList<String>();
 		peers = new ArrayList<String>();
+		peerFiles = new ArrayList<String>();
 		fileRequests = new ArrayList<String>();
 		
 		timer = new Timer(5000, null);	
@@ -110,11 +115,13 @@ public class ClientGUI {
 		selectedServerFile = null;
 		selectedClientFile = null;
 		selectedPeer = null;
+		selectedPeerFile = null;
 		requestingDownload = false;
 		requestingUpload = false;
 		selectedFileRequest = null;
 		requestingPost = false;
 		requestingResponse = false;
+		requestingPeerFile = false;
 		
 		initiateButtonListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -152,6 +159,12 @@ public class ClientGUI {
 			}
 		};
 		
+		downloadPeerFileButtonListener = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				requestPeerFile();
+			}
+		};
+		
 		serverFileListSelectionListener = new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent event) {
 				selectServerFile();
@@ -167,6 +180,12 @@ public class ClientGUI {
 		peerListSelectionListener = new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent event) {
 				selectPeer();
+			}
+		};
+		
+		peerFilesListSelectionListener = new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent event) {
+				selectPeerFile();
 			}
 		};
 		
@@ -209,6 +228,10 @@ public class ClientGUI {
 		return requestingResponse;
 	}
 	
+	public synchronized boolean isRequestingPeerFile() {
+		return requestingPeerFile;
+	}
+	
 	public synchronized void setRequestingDownload(boolean b) {
 		requestingDownload = b;
 	}
@@ -227,6 +250,10 @@ public class ClientGUI {
 	
 	public synchronized void setRequestingResponse(boolean b) {
 		requestingResponse = b;
+	}
+	
+	public synchronized void setRequestingPeerFile(boolean b) {
+		requestingPeerFile = b;
 	}
 	
 	public void requestDownload() {
@@ -254,6 +281,12 @@ public class ClientGUI {
 			requestingResponse = true;
 	}
 	
+	public void requestPeerFile() {
+		if (selectedPeer != null && selectedPeerFile != null) {
+			requestingPeerFile = true;
+		}
+	}
+	
 	public void selectServerFile() {
 		selectedServerFile = (String) serverFileList.getSelectedValue();
 	}
@@ -265,6 +298,10 @@ public class ClientGUI {
 	
 	public void selectPeer() {
 		selectedPeer = (String) peerList.getSelectedValue();
+	}
+	
+	public void selectPeerFile() {
+		selectedPeerFile = (String) peerFileList.getSelectedValue();
 	}
 	
 	public void selectFileRequest() {
@@ -281,6 +318,10 @@ public class ClientGUI {
 	
 	public String getSelectedPeer() {
 		return selectedPeer;
+	}
+	
+	public String getSelectedPeerFile() {
+		return selectedPeerFile;
 	}
 	
 	public String getSelectedFileRequest() {
@@ -378,6 +419,7 @@ public class ClientGUI {
 		serverFileList.addListSelectionListener(serverFileListSelectionListener);
 		clientFileList.addListSelectionListener(clientFileListSelectionListener);
 		peerList.addListSelectionListener(peerListSelectionListener);
+		peerFileList.addListSelectionListener(peerFilesListSelectionListener);
 		btnPostRequest.addActionListener(postButtonListener);
 		btnRespondToRequest.addActionListener(respondButtonListener);
 		fileRequestList.addListSelectionListener(fileRequestListSelectionListener);
@@ -395,6 +437,7 @@ public class ClientGUI {
 		serverFileList.removeListSelectionListener(serverFileListSelectionListener);
 		clientFileList.removeListSelectionListener(clientFileListSelectionListener);
 		peerList.removeListSelectionListener(peerListSelectionListener);
+		peerFileList.removeListSelectionListener(peerFilesListSelectionListener);
 		btnPostRequest.removeActionListener(postButtonListener);
 		btnRespondToRequest.removeActionListener(respondButtonListener);
 		fileRequestList.removeListSelectionListener(fileRequestListSelectionListener);
