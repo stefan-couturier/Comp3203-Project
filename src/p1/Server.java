@@ -49,6 +49,10 @@ public class Server implements Runnable{
 					System.out.println("Server accept error: " + ioe); stop();
 			}
 		}
+		System.out.println("Closing");
+		for(int x =0; x< clientCount; x++){
+			clients[x].send("TERMINATE");
+		}
 	}
 
 	public void start(){

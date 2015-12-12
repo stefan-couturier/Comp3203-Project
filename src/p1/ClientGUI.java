@@ -81,8 +81,8 @@ public class ClientGUI {
 	private ActionListener respondButtonListener;
 	private ListSelectionListener fileRequestListSelectionListener;
 	
-	//Timer timer;
-	//private ActionListener timerTick;
+	Timer timer;
+	private ActionListener timerTick;
 
 	/**
 	 * Launch the application.
@@ -110,7 +110,7 @@ public class ClientGUI {
 		peerFiles = new ArrayList<String>();
 		fileRequests = new ArrayList<String>();
 		
-		//timer = new Timer(5000, null);	
+		timer = new Timer(5000, null);	
 		//peers.add("//TODO:");
 		
 		selectedServerFile = null;
@@ -196,16 +196,16 @@ public class ClientGUI {
 			}
 		};
 		
-//		timerTick = new ActionListener() {
-//			public void actionPerformed(ActionEvent event){
-//				requestRefresh();
-//			}
-//		};
+		timerTick = new ActionListener() {
+			public void actionPerformed(ActionEvent event){
+				requestRefresh();
+			}
+		};
 		
 		initialize();
 		this.frame.setVisible(true);
 		enableListeners();
-//		timer.start();
+		timer.start();
 	}
 	
 	
@@ -277,7 +277,6 @@ public class ClientGUI {
 	}
 	
 	public void requestRefresh() {
-		System.out.println("Refresh");
 		requestingRefresh = true;
 	}
 	
@@ -440,7 +439,7 @@ public class ClientGUI {
 		btnRespondToRequest.addActionListener(respondButtonListener);
 		fileRequestList.addListSelectionListener(fileRequestListSelectionListener);
 		
-//		timer.addActionListener(timerTick);
+		timer.addActionListener(timerTick);
 	}
 
 
@@ -458,7 +457,7 @@ public class ClientGUI {
 		btnRespondToRequest.removeActionListener(respondButtonListener);
 		fileRequestList.removeListSelectionListener(fileRequestListSelectionListener);
 		
-//		timer.removeActionListener(timerTick);
+		timer.removeActionListener(timerTick);
 	}
 
 

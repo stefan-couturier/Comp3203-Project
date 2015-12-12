@@ -48,6 +48,9 @@ public class ClientThread extends Thread {
 				else if (received.equals("getPeerfiles")){
 					client.sendFileList();
 				}
+				else if (received.equals("TERMINATE")){
+					//client.terminate();
+				}
 			}
 			catch(IOException ioe) {
 				System.out.println("Listening ERROR: " + ioe.getMessage());
