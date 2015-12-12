@@ -261,7 +261,6 @@ public class ClientGUI {
 	}
 	
 	public void requestRefresh() {
-		System.out.println("Refresh");
 		requestingRefresh = true;
 	}
 

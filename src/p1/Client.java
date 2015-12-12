@@ -194,6 +194,7 @@ public class Client extends JPanel implements Runnable {
 	    catch(IOException ioe){
 	    	System.out.println("Error closing ..."); 
 	    }
+	    gui.getFrame().dispose();
 	    clientThread.close();  
 	    clientThread.stop();
 	}
