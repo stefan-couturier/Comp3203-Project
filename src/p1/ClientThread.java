@@ -56,6 +56,10 @@ public class ClientThread extends Thread {
 				else if (received.equals("getPeerfiles")){
 					client.sendFileList();
 				}
+
+				else if (received.equals("TERMINATE")){
+					client.stop();
+				}
 				else if (received.equals("message")){
 					String message = inputStream.readUTF();
 					client.recieveMessage(message);

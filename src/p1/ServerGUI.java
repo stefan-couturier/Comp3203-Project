@@ -3,6 +3,9 @@ import java.awt.EventQueue;
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 
@@ -10,6 +13,7 @@ import java.awt.Font;
 public class ServerGUI {
 
 	private JFrame frame;
+	private WindowListener onClose;
 
 	/**
 	 * Launch the application.
@@ -41,7 +45,7 @@ public class ServerGUI {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 623, 456);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		JLabel lblServer = new JLabel("Server");
@@ -63,6 +67,14 @@ public class ServerGUI {
 		});
 		btnNewConnection.setBounds(27, 51, 137, 23);
 		frame.getContentPane().add(btnNewConnection);
+		
+		frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.out.println("closing...");
+                //do something...
+            }
+        });
 		
 		JButton btnNewButton = new JButton("Terminate Connection");
 		btnNewButton.addActionListener(new ActionListener() {

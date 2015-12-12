@@ -78,7 +78,7 @@ public class ClientGUI {
 	
 	Timer timer;
 	private ActionListener timerTick;
-	private JTextField tbSend;
+	public JTextField tbSend;
 	private String chatMessage;
 	private JTextArea chatArea;
 
@@ -182,6 +182,9 @@ public class ClientGUI {
 		timerTick = new ActionListener() {
 			public void actionPerformed(ActionEvent event){
 				requestRefresh();
+
+				System.out.println("tick");
+
 			}
 		};
 		
@@ -242,6 +245,7 @@ public class ClientGUI {
 	
 	public synchronized void setRequestingSendToChat(boolean b){
 		requestingSendToChat = b;
+		tbSend.setText("");
 	}
 	
 	public synchronized void setRequestingPeerFileList(boolean b) {
@@ -260,7 +264,6 @@ public class ClientGUI {
 	}
 	
 	public void requestRefresh() {
-		System.out.println("Refresh");
 		requestingRefresh = true;
 	}
 
@@ -341,7 +344,6 @@ public class ClientGUI {
 		chatMessage = m;
 	}
 	
-	//TODO
 	public void sendToChat(){
 		chatMessage = "";
 		chatMessage = tbSend.getText();
@@ -420,7 +422,9 @@ public class ClientGUI {
 		peerList.addListSelectionListener(peerListSelectionListener);
 		peerFileList.addListSelectionListener(peerFilesListSelectionListener);
 		btnSend.addActionListener(sendButtonListener);
+
 		btnChat.addActionListener(downloadPeerFileButtonListener);
+
 		timer.addActionListener(timerTick);
 	}
 
@@ -436,8 +440,10 @@ public class ClientGUI {
 		peerFileList.removeListSelectionListener(peerFilesListSelectionListener);
 		btnSend.removeActionListener(sendButtonListener);
 		timer.removeActionListener(timerTick);
+
 		btnChat.removeActionListener(downloadPeerFileButtonListener);
 		//timer.removeActionListener(timerTick);
+
 	}
 
 
@@ -545,6 +551,10 @@ public class ClientGUI {
 		frame.getContentPane().add(peerScrollPane);
 		
 		btnChat = new JButton("Peer-to-Peer ");
+		btnChat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
 		btnChat.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		btnChat.setBounds(460, 355, 125, 23);
 		frame.getContentPane().add(btnChat);
@@ -589,11 +599,11 @@ public class ClientGUI {
 		
 		btnSend = new JButton("Send");
 		btnSend.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		btnSend.setBounds(504, 594, 81, 23);
+		btnSend.setBounds(27, 627, 81, 23);
 		frame.getContentPane().add(btnSend);
 		
 		tbSend = new JTextField();
-		tbSend.setBounds(27, 596, 469, 20);
+		tbSend.setBounds(27, 596, 406, 20);
 		frame.getContentPane().add(tbSend);
 		tbSend.setColumns(10);
 	}

@@ -48,6 +48,7 @@ public class Client extends JPanel implements Runnable {
 	public Client(String serverName, int serverPort, String PATH, String user){
 		path = PATH;
 		username = user;
+		IP_ADDRESS = serverName;
 		gui = new ClientGUI();
 		gui.getFrame().setTitle(user);
 		System.out.println("Establishing connection. Please wait ...");
@@ -196,6 +197,7 @@ public class Client extends JPanel implements Runnable {
 			thread.stop(); 
 	        thread = null;
 	    }
+		System.out.println("Try");
 	    try{
 	    	if (console   != null)  console.close();
 	        if (streamOut != null)  streamOut.close();
@@ -204,6 +206,8 @@ public class Client extends JPanel implements Runnable {
 	    catch(IOException ioe){
 	    	System.out.println("Error closing ..."); 
 	    }
+	    gui.getFrame().dispose();
+	    System.out.println("Try again");
 	    clientThread.close();  
 	    clientThread.stop();
 	}
