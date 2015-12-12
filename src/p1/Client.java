@@ -87,6 +87,7 @@ public class Client extends JPanel implements Runnable {
 					streamOut.flush();
 					streamOut.writeUTF(username);
 					streamOut.flush();
+					sendFileList();
 					streamOut.writeUTF("update");
 					isInitializing = false; 
 				} 
@@ -150,10 +151,12 @@ public class Client extends JPanel implements Runnable {
 					String peerName = gui.getSelectedPeer();
 					if (peerName!=null){
 						streamOut.writeUTF("getPeerFileList");
+						System.out.println("CLIENT sent:\tgetPeerFileList");
 						// mark this file request as "PENDING" status to notify waiting client 
 						streamOut.writeUTF(peerName);
 						streamOut.flush();
 					}
+					gui.setRequestingPeerFileList(false);
 				}
 				//streamOut.writeUTF(console.readLine());
 	            streamOut.flush();
@@ -275,6 +278,7 @@ public class Client extends JPanel implements Runnable {
 	public void sendFileList(){
 		try{
 			streamOut.writeUTF("fileList");
+			System.out.println("CLIENT SENT:\tfilelist");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -285,10 +289,10 @@ public class Client extends JPanel implements Runnable {
 		try {
 			// so client knows how many file names to expect
 			outputStream.writeInt(list.size());
-			System.out.println("SERVER Sent:\t"+list.size());
+			System.out.println("CLIENT Sent:\t"+list.size());
 			for (int i=0; i < list.size(); i++){
 				outputStream.writeUTF(list.get(i));
-				System.out.println("SERVER Sent:\t"+list.get(i));
+				System.out.println("CLIENT Sent:\t"+list.get(i));
 			}
 			outputStream.flush();
 		} catch (IOException e) {

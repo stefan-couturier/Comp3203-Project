@@ -115,7 +115,7 @@ public class Server implements Runnable{
 	public synchronized void handleGetPeerFiles(int ID, String peerName, DataOutputStream outputStream){
 		int peerID;
 		peerID = findClientByUsername(peerName);
-		ArrayList<String> peerFiles = clients[peerID].getFiles();
+		ArrayList<String> peerFiles = new ArrayList<String>(clients[peerID].getFiles());
 		try{
 			outputStream.writeUTF("PeerFileList");
 			sendArrayList(peerFiles,outputStream);

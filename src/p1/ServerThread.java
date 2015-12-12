@@ -91,7 +91,7 @@ public class ServerThread extends Thread {
 					System.out.println("SERVERThread "+ ID + " Recieved:\t"+peerName);
 					server.handleGetPeerFiles(ID,peerName,outputStream);
 				}
-				else if (received.equals("getPeerFileList")){
+				else if (received.equals("fileList")){
 					try {
 						files = new ArrayList<String>();
 						int listSize = inputStream.readInt();
