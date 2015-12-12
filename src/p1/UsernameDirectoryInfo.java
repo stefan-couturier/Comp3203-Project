@@ -15,12 +15,15 @@ import javax.swing.JTextField;
 public class UsernameDirectoryInfo extends JPanel {
 
 	private JFrame frame;
+	private GridBagLayout layout;
 	private GridBagConstraints c;
 	private JLabel prompt;
 	private JLabel usernameLabel;
 	private JTextField usernameInput;
 	private JLabel directoryLabel;
 	private JLabel directorySelectedLabel;
+	private JLabel ipLabel;
+	private JTextField ipInput;
 	private JButton chooseDirectoryButton;
 	private JButton proceedButton;
 
@@ -30,11 +33,14 @@ public class UsernameDirectoryInfo extends JPanel {
 	private JFileChooser fileChooser;
 	private File fileChosen;
 	private String username;
+	private String ip;
 	
 	private boolean clientInfoReady = false;
 
 	UsernameDirectoryInfo() 
 	{
+		super();
+		
 		proceedButtonListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				verifyProceed();
@@ -50,61 +56,84 @@ public class UsernameDirectoryInfo extends JPanel {
 		fileChooser = null;
 		fileChosen = null;
 		username = "";
+		ip = "";
 
 		frame = new JFrame("Welcome to Awesome");
 		frame.getContentPane().setLayout(new GridBagLayout());
 
 		c = new GridBagConstraints();
-		c.insets = new Insets(10, 10, 10, 10); // this will apply to all components until reset
+		// these will apply to all components until reset
+		c.insets = new Insets(10, 10, 10, 10); 
+		// these weights handle resizing.... half-assedly
+		c.weightx = 1.0;
+		c.weighty = 1.0;
 
-		prompt = new JLabel("Choose an Awesome username and select a home directory... ");
-		c.fill = GridBagConstraints.HORIZONTAL;
+		prompt = new JLabel("Choose a Server to connect with, an Awesome Username and a local Directory... ");
+		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 3;
 		c.gridx = 0;
 		c.gridy = 0;
 		frame.getContentPane().add(prompt, c);
 
-		usernameLabel = new JLabel("Username:");
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weighty = 0.0; // prevents textfields from growing in y direction
+		
+		ipLabel = new JLabel("IP address:");
+		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy = 1;
+		frame.getContentPane().add(ipLabel, c);
+
+		ipInput = new JTextField();
+		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 2;
+		c.gridx = 1;
+		c.gridy = 1;
+		frame.getContentPane().add(ipInput, c);
+		
+		usernameLabel = new JLabel("Username:");
+		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 1;
+		c.gridx = 0;
+		c.gridy = 2;
 		frame.getContentPane().add(usernameLabel, c);
 
 		usernameInput = new JTextField();
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 2;
 		c.gridx = 1;
-		c.gridy = 1;
+		c.gridy = 2;
 		frame.getContentPane().add(usernameInput, c);
 
+		c.weighty = 1.0;
+		
 		directoryLabel = new JLabel("Diretory:");
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 1;
 		c.gridx = 0;
-		c.gridy = 2;
+		c.gridy = 3;
 		frame.getContentPane().add(directoryLabel, c);
 
 		directorySelectedLabel = new JLabel(".....");
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 2;
 		c.gridx = 1;
-		c.gridy = 2;
+		c.gridy = 3;
 		frame.getContentPane().add(directorySelectedLabel, c);
 
 		chooseDirectoryButton = new JButton("Choose Directory");
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 1;
 		c.gridx = 1;
-		c.gridy = 3;
+		c.gridy = 4;
 		chooseDirectoryButton.addActionListener(chooseDirectoryButtonListener);
 		frame.getContentPane().add(chooseDirectoryButton, c);
 
 		proceedButton = new JButton("Proceed");
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 1;
 		c.gridx = 2;
-		c.gridy = 3;
+		c.gridy = 4;
 		proceedButton.addActionListener(proceedButtonListener);
 		frame.getContentPane().add(proceedButton, c);
 
@@ -119,20 +148,26 @@ public class UsernameDirectoryInfo extends JPanel {
 	public String getUsername() {
 		return username;
 	}
+	
+	public String getIP() {
+		return ip;
+	}
 
 	public void verifyProceed() {
 		
 		username = usernameInput.getText();
 		username = username.trim();
+		ip = ipInput.getText();
+		ip = ip.trim();
 		String path = fileChosen.getAbsolutePath();
-		if (username.equals("")) {
-			JOptionPane.showMessageDialog(frame, "Need valid username.");
+		if (username.equals("") || ip.equals("")) {
+			JOptionPane.showMessageDialog(frame, "Need a valid Server and Username.");
 		}
 		else if (fileChosen == null || !fileChosen.isDirectory() || 
 				!fileChosen.canWrite() || !fileChosen.canRead()) {
-			// can't use that directory
+			JOptionPane.showMessageDialog(frame, "You don't have permission to use that Directory");
 		} else {
-			String ip = JOptionPane.showInputDialog("Please input IP of the Server: ");
+			//String ip = JOptionPane.showInputDialog("Please input IP of the Server: ");
 			Client c = new Client(ip, 45000, path, username);
 			frame.dispose();
 			// good to go

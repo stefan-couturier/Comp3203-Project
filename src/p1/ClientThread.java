@@ -28,13 +28,20 @@ public class ClientThread extends Thread {
 				
 				if (received.equals("update"))
 					client.updateGUILists(inputStream);
-				else if (received.equals("download"))
+				else if (received.equals("download")) {
 					client.receiveFile(inputStream);
+					client.getGUI().updateClientList(client.getFileList());
+				}
 				else if (received.equals("upload"))
 					client.uploadFile();
-				else if (received.equals("noupload"))
-					;
-				//client.handle(inputStream.readUTF());
+				//else if (received.equals("noupload"))
+					//;
+				else if (received.equals("pending"))
+					client.receiveP2PFile();
+				else if (received.equals("sendP2P")) {
+					String ip = inputStream.readUTF();
+					client.sendP2PFile(ip);
+				}
 			}
 			catch(IOException ioe) {
 				System.out.println("Listening ERROR: " + ioe.getMessage());

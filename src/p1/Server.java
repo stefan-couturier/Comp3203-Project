@@ -10,7 +10,7 @@ public class Server implements Runnable{
 	private final static int PORT_NUM = 45000;
 	public static ServerSocket serv;
 	public static Socket clnt;
-	public static String root_dir = "Z:\\SERVER";
+	public static String root_dir = "C:\\Users\\Andrew\\Test";
 	public static String path;
 	public static File current_file;
 
@@ -19,10 +19,12 @@ public class Server implements Runnable{
 	private Thread       thread = null;
 	private int clientCount = 0;
 	private ServerGUI gui = null;
+	
+	private ArrayList<FileRequest> fileRequests = new ArrayList<FileRequest>();;
 
 
 	public Server(int port){
-		File[] roots = File.listRoots();
+		//File[] roots = File.listRoots();
 		//root_dir = roots[0].toString()+"\\SERVER";
 		path = root_dir;
 		gui = new ServerGUI();
@@ -80,9 +82,9 @@ public class Server implements Runnable{
 	
 	// this is to send updated lists to a client when requested from client
 	public synchronized void handleUpdateLists(int ID, DataOutputStream outputStream) {
-		// TODO: sendFileList() should maybe be in this server class instead of serverThread
-		//clients[findClient(ID)].sendFileList(getFileList());
-		sendFileList(getFileList(), outputStream);
+		sendArrayList(getFileList(), outputStream);
+		sendArrayList(getPeerList(), outputStream);
+		sendArrayList(getFileRequests(), outputStream);
 	}
 	
 	// this send a file to client when they request to download a file
@@ -319,8 +321,8 @@ public class Server implements Runnable{
 		}
 		return s;
 	}
-	
-	public void sendFileList(ArrayList<String> list, DataOutputStream outputStream) {
+
+	public void sendArrayList(ArrayList<String> list, DataOutputStream outputStream) {
 		try {
 			// so client knows how many file names to expect
 			outputStream.writeInt(list.size());
@@ -336,6 +338,13 @@ public class Server implements Runnable{
 		
 	}
 	
+	public ArrayList<String> getPeerList() {
+		ArrayList<String> peers = new ArrayList<String>();
+		for (int i = 0; i < clientCount; i++)
+			peers.add(clients[i].getUsername());
+		return peers;
+	}
+	
 	public ArrayList<String> getFileList() {
 		File f = new File(root_dir);
 		ArrayList<File> files = new ArrayList<File>(Arrays.asList(f.listFiles()));
@@ -347,8 +356,52 @@ public class Server implements Runnable{
 		return list;
 	}
 	
+	public synchronized void addFileRequest(String d, String pIP, String p) {
+		fileRequests.add(new FileRequest(d, pIP, p));
+	}
+	
+	public synchronized void setFileRequestToPending(String d, String r) {
+		for (int i = 0; i < fileRequests.size(); i++) {
+			if (fileRequests.get(i).getDescription().equals(d)) {
+				fileRequests.get(i).setStatus(FileRequest.Status.PENDING);
+				fileRequests.get(i).setResponder(r);
+			}
+		}
+	}
+	
+	public synchronized String getPendingFileRequestPoster(String user) {
+		String pendingFile = "";
+		for (int i = 0; i < fileRequests.size(); i++) {
+			if (fileRequests.get(i).getPoster().equals(user) &&
+					fileRequests.get(i).getStatus() == FileRequest.Status.PENDING) {
+				pendingFile = fileRequests.get(i).getDescription();
+			}
+		}
+		return pendingFile;
+	}
+	
+	// getting posters IP address to the responder
+	public synchronized String getPendingFileRequestResponder(String user) {
+		String pendingFile = "";
+		for (int i = 0; i < fileRequests.size(); i++) {
+			if (fileRequests.get(i).getResponder().equals(user) &&
+					fileRequests.get(i).getStatus() == FileRequest.Status.PENDING) {
+				pendingFile = fileRequests.get(i).getPosterIP();
+			}
+		}
+		return pendingFile;
+	}
+	
+	public ArrayList<String> getFileRequests() {
+		ArrayList<String> requests = new ArrayList<String>();
+		for (int i = 0; i < fileRequests.size(); i++)
+			requests.add(fileRequests.get(i).getDescription());
+		return requests;
+	}
+
+
 	// verify that server doesn't already have the file that the client wants to upload
-	public boolean verifyUpload(String s) {
+	public synchronized boolean verifyUpload(String s) {
 		ArrayList<String> list = new ArrayList<String>(getFileList());
 		if (s != null && !list.contains(s))
 			return true;

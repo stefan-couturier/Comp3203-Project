@@ -7,11 +7,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Client implements Runnable{
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+public class Client extends JPanel implements Runnable {
 	private final static int PORT_NUM = 45000;
 	private static String IP_ADDRESS = "134.117.28.138";
 	public static Socket s;
-	public static String path = "Z:\\NetTest";
+	public static String path = "";
+	public static String username = "";
 	
 	private Thread thread = null;
 	private ClientThread clientThread = null;
@@ -22,11 +27,12 @@ public class Client implements Runnable{
 	private UsernameDirectoryInfo udi = null;
 	
 	private String selectedClientFile;
+	private boolean isInitializing = true;
 	
 	
 	public Client(String serverName, int serverPort){
-		File[] roots = File.listRoots();
-		path = roots[0].toString()+"\\CLIENT";
+		//File[] roots = File.listRoots();
+		//path = roots[0].toString()+"\\CLIENT";
 		
 		gui = new ClientGUI();
 		
@@ -46,6 +52,7 @@ public class Client implements Runnable{
 		//File[] roots = File.listRoots();
 		//path = roots[0].toString()+"\\CLIENT";
 		path = PATH;
+		username = user;
 		gui = new ClientGUI();
 		gui.getFrame().setTitle(user);
 		System.out.println("Establishing connection. Please wait ...");
@@ -73,6 +80,17 @@ public class Client implements Runnable{
 		while (thread != null){
 			try{
 				// handle gui input and pass commands to ServerThread
+				
+				// this 'if' only done once at initialization
+				if (isInitializing) {
+					streamOut.writeUTF("username");
+					streamOut.flush();
+					streamOut.writeUTF(username);
+					streamOut.flush();
+					streamOut.writeUTF("update");
+					isInitializing = false; 
+				} 
+				
 				if (gui == null){
 					streamOut.writeUTF(".bye");
 					System.out.println("CLIENT sent:\t.bye");
@@ -101,6 +119,28 @@ public class Client implements Runnable{
 					streamOut.writeUTF(selectedClientFile);
 					System.out.println("CLIENT sent:\t"+selectedClientFile);
 					gui.setRequestingUpload(false);
+				}
+				else if (gui.isRequestingPost()) {
+					String description = "";
+					description = JOptionPane.showInputDialog("Enter a description of the file you'd like to request:");
+					String host = InetAddress.getLocalHost().getHostAddress();
+					if (description != null && !description.equals("")) {
+						streamOut.writeUTF("post");
+						streamOut.writeUTF(description);
+						streamOut.writeUTF(host);
+						streamOut.flush();
+					}
+					gui.setRequestingPost(false);
+				}
+				else if (gui.isRequestingResponse()) {
+					String filename = gui.getSelectedFileRequest();
+					if (filename != null) {
+						streamOut.writeUTF("response");
+						// mark this file request as "PENDING" status to notify waiting client 
+						streamOut.writeUTF(filename);
+						streamOut.flush();
+					}
+					gui.setRequestingResponse(false);
 				}
 				//streamOut.writeUTF(console.readLine());
 	            streamOut.flush();
@@ -173,6 +213,7 @@ public class Client implements Runnable{
 		ArrayList<String> serverList = new ArrayList<String>();
 		ArrayList<String> clientList = new ArrayList<String>(getFileList());
 		ArrayList<String> peerList = new ArrayList<String>();
+		ArrayList<String> requestList = new ArrayList<String>();
 		int listSize;
 		try {
 			listSize = inputStream.readInt();
@@ -181,14 +222,17 @@ public class Client implements Runnable{
 				serverList.add(inputStream.readUTF());
 				System.out.println("CLIENT Recieved:\t"+serverList.get(i));
 			}
-			/*listSize = inputStream.readInt();
+			listSize = inputStream.readInt();
 			for (int j = 0; j < listSize; j++)
-				peerList.add(inputStream.readUTF());*/
+				peerList.add(inputStream.readUTF());
+			listSize = inputStream.readInt();
+			for (int j = 0; j < listSize; j++)
+				requestList.add(inputStream.readUTF());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("CLIENT:\t"+clientList);
-		gui.updateLists(serverList, clientList, serverList);
+		gui.updateLists(serverList, clientList, peerList, requestList);
 		
 	}
 	
@@ -263,6 +307,33 @@ public class Client implements Runnable{
 		if (aFile.exists())
 			return aFile;
 		return null;
+	}
+	
+	public void receiveP2PFile() {
+		P2PServer p2p = new P2PServer(60000, path);
+		p2p.run();
+		gui.updateClientList(getFileList());
+	}
+	
+	public void sendP2PFile(String ipAdd) throws IOException {
+		String IP = ipAdd;
+		int port = 60000;
+		
+		File fileChosen = null;
+		String filePath = "";
+		JFileChooser fileChooser = new JFileChooser(); 
+		fileChooser.setCurrentDirectory(new java.io.File(path));
+		fileChooser.setDialogTitle("Choose a File to send");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		fileChooser.setAcceptAllFileFilterUsed(false);
+		fileChooser.setVisible(true);
+		// the condition in this 'if-statement' required extending JPanel
+		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			fileChosen = fileChooser.getSelectedFile();
+			filePath = fileChosen.getAbsolutePath();
+		}
+		P2PClient p2p = new P2PClient(IP, port, "", filePath);
+		p2p.run();
 	}
 
 	public void receiveFile(DataInputStream request) throws IOException {

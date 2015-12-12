@@ -11,6 +11,10 @@ public class ServerThread extends Thread {
 	private DataInputStream  inputStream  =  null;
 	private DataOutputStream outputStream = null;
 
+	// username of corresponding client
+	private String username;
+	public String getUsername() { return username; }
+	
 	public ServerThread(Server _server, Socket _socket){
 		super();
 		server = _server;
@@ -27,7 +31,17 @@ public class ServerThread extends Thread {
 		String received;
 		while (true) {
 			try {
-				//server.handle(ID, inputStream.readUTF());
+				// if there are file requests to handle, do them before listening to client
+				String pendingFile = server.getPendingFileRequestPoster(username);
+				if (!pendingFile.equals("")) {
+					send("pending");
+					// ideally poster is now waiting to receive file
+				}
+				String ip = server.getPendingFileRequestResponder(username);
+				if (!ip.equals("")) {
+					send("sendP2P");
+					send(ip);
+				}
 				
 				// serverThread does the 'receiving' from client, and then tells server what to do
 				received = inputStream.readUTF();
@@ -52,11 +66,20 @@ public class ServerThread extends Thread {
 						send("upload"); // lets the clientThread get ready to upload to server
 						System.out.println("SERVERThread "+ ID + " Sent:\tupload");
 						server.handleUpload(ID, filename, inputStream);
-					}
+					} 
 					else{
 						send("noupload");
 						System.out.println("SERVERThread "+ ID + " Sent:\tnoupload");
 					}
+				}
+				else if (received.equals("username")) {
+					username = inputStream.readUTF();
+				}
+				else if (received.equals("post")) {
+					server.addFileRequest(inputStream.readUTF(), inputStream.readUTF(), username);
+				}
+				else if (received.equals("response")) {
+					server.setFileRequestToPending(inputStream.readUTF(), username);
 				}
 				
 			}
