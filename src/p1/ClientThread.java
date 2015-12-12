@@ -48,6 +48,10 @@ public class ClientThread extends Thread {
 				else if (received.equals("getPeerfiles")){
 					client.sendFileList();
 				}
+				else if (received.equals("message")){
+					String message = inputStream.readUTF();
+					client.recieveMessage(message);
+				}
 			}
 			catch(IOException ioe) {
 				System.out.println("Listening ERROR: " + ioe.getMessage());

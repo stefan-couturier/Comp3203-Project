@@ -21,6 +21,13 @@ public class Server implements Runnable{
 	
 	private ArrayList<FileRequest> fileRequests = new ArrayList<FileRequest>();;
 
+	public ServerThread getThread(int x){
+		return clients[x];
+	}
+	
+	public int getClientCount(){
+		return clientCount;
+	}
 
 	public Server(int port){
 		File[] roots = File.listRoots();
