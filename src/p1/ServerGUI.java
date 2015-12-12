@@ -13,7 +13,7 @@ import java.awt.Font;
 public class ServerGUI {
 
 	private JFrame frame;
-	private WindowListener onClose;
+	private boolean TERMINATING;
 
 	/**
 	 * Launch the application.
@@ -35,6 +35,7 @@ public class ServerGUI {
 	 * Create the application.
 	 */
 	public ServerGUI() {
+		TERMINATING = false;
 		initialize();
 		frame.setVisible(true);
 	}
@@ -71,8 +72,8 @@ public class ServerGUI {
 		frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                System.out.println("closing...");
-                //do something...
+                System.out.println("SERVERGUI:\tclosing...");
+                TERMINATING = true;
             }
         });
 		
@@ -199,4 +200,9 @@ public class ServerGUI {
 		frame.getContentPane().add(lblNewLabel);
 		
 	}
+
+	public synchronized boolean isTERMINATING() {
+		return TERMINATING;
+	}
+
 }
