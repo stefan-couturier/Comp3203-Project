@@ -217,24 +217,68 @@ public class Client extends JPanel implements Runnable {
 		int listSize;
 		try {
 			listSize = inputStream.readInt();
-			System.out.println("CLIENT recieved:\t"+listSize);
+			System.out.println("CLIENT recieved:\t"+listSize+" files on Server");
 			for (int i = 0; i < listSize; i++){
 				serverList.add(inputStream.readUTF());
-				System.out.println("CLIENT Recieved:\t"+serverList.get(i));
+				System.out.println("CLIENT Recieved:\tFile: "+serverList.get(i));
 			}
 			listSize = inputStream.readInt();
-			for (int j = 0; j < listSize; j++)
+			System.out.println("CLIENT recieved:\t"+listSize+" peers on Server");
+			for (int j = 0; j < listSize; j++){
 				peerList.add(inputStream.readUTF());
+				System.out.println("CLIENT Recieved:\tPeer: "+peerList.get(j));
+			}
 			listSize = inputStream.readInt();
-			for (int j = 0; j < listSize; j++)
+			System.out.println("CLIENT recieved:\t"+listSize+" requests on Server");
+			for (int j = 0; j < listSize; j++){
 				requestList.add(inputStream.readUTF());
+				System.out.println("CLIENT Recieved:\tRequest: "+peerList.get(j));
+
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("CLIENT:\t"+clientList);
+		System.out.println("CLIENT:\tFiles on System: "+clientList);
 		gui.updateLists(serverList, clientList, peerList, requestList);
 		
 	}
+	
+	public void recievePeerFileList(DataInputStream inputStream){
+		ArrayList<String> peerFileList = new ArrayList<String>();
+		int listSize;
+		try {
+			listSize = inputStream.readInt();
+			System.out.println("CLIENT recieved:\t"+listSize+" files on Peer");
+			for (int i = 0; i < listSize; i++){
+				peerFileList.add(inputStream.readUTF());
+				System.out.println("CLIENT Recieved:\tFile: "+peerFileList.get(i));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		gui.updatePeerFileList(peerFileList);
+	}
+	
+	public void sendFileList(){
+		sendArrayList(getFileList(),streamOut);
+	}
+	
+	public void sendArrayList(ArrayList<String> list, DataOutputStream outputStream) {
+		try {
+			// so client knows how many file names to expect
+			outputStream.writeInt(list.size());
+			System.out.println("SERVER Sent:\t"+list.size());
+			for (int i=0; i < list.size(); i++){
+				outputStream.writeUTF(list.get(i));
+				System.out.println("SERVER Sent:\t"+list.get(i));
+			}
+			outputStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	
 	// gets current file list of clients directory
 	public ArrayList<String> getFileList() {

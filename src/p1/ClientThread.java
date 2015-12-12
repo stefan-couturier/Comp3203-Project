@@ -42,6 +42,12 @@ public class ClientThread extends Thread {
 					String ip = inputStream.readUTF();
 					client.sendP2PFile(ip);
 				}
+				else if (received.equals("recievePeerfiles")){
+					client.recievePeerFileList(inputStream);
+				}
+				else if (received.equals("getPeerfiles")){
+					client.sendFileList();
+				}
 			}
 			catch(IOException ioe) {
 				System.out.println("Listening ERROR: " + ioe.getMessage());

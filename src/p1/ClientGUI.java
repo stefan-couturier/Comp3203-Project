@@ -24,12 +24,15 @@ public class ClientGUI {
 	private JLabel label_1;
 	private JLabel lblConnectionStatus;
 	private JLabel lblFilesOnServer;
+	private JLabel lblFilesOnPeer;
 	private JList<String> serverFileList;
 	private JList<String> clientFileList;
 	private JList<String> peerList;
+	private JList<String> peerFileList;
 	private JScrollPane serverFileScrollPane;
 	private JScrollPane clientFileScrollPane;
 	private JScrollPane peerScrollPane;
+	private JScrollPane peerFileScrollPane;
 	private JButton btnDownloadAFile;
 	private JLabel lblFilesOnSystem;
 	private JButton btnUploadAFile;
@@ -50,6 +53,7 @@ public class ClientGUI {
 	private ArrayList<String> serverFiles;
 	private ArrayList<String> clientFiles;
 	private ArrayList<String> peers;
+	private ArrayList<String> peerFiles;
 	
 	private ActionListener initiateButtonListener;
 	private ActionListener terminateButtonListener;
@@ -338,6 +342,20 @@ public class ClientGUI {
 
 		enableListeners();
 	}
+	
+	// Update peer file list only 
+		
+	public void updatePeerFileList(ArrayList<String> c) {
+		System.out.println("CLIENT GUI:\tupdatePeerFileList");
+		disableListeners();
+		//selectedClientFile = null;
+
+		peerFiles = new ArrayList<String>(c);
+
+		String strClient[] = new String[1]; // needed to establish array type for next line
+		peerFileList.setListData((String[]) peerFiles.toArray(strClient));
+		enableListeners();
+	}
 
 
 	// Enable listeners
@@ -482,6 +500,31 @@ public class ClientGUI {
 		btnChat.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		btnChat.setBounds(460, 355, 125, 23);
 		frame.getContentPane().add(btnChat);
+		
+		
+		///////////////////////////////////////
+		lblFilesOnPeer = new JLabel("Peer's files");
+		lblFilesOnPeer.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblFilesOnPeer.setBounds(460+(460-243), 166, 109, 14);
+		frame.getContentPane().add(lblFilesOnPeer);
+		
+		peerFileList = new JList<String>();
+		peerFileList.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		//peerList.setBounds(460, 191, 160, 146);
+		peerFileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		//frame.getContentPane().add(peerList);
+		peerFileScrollPane = new JScrollPane(peerFileList,
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		peerFileScrollPane.setBounds(460+460-243, 191, 190, 146);
+		frame.getContentPane().add(peerFileScrollPane);
+		
+//		btnChat = new JButton("Peer-to-Peer ");
+//		btnChat.setFont(new Font("Tahoma", Font.PLAIN, 13));
+//		btnChat.setBounds(460, 355, 125, 23);
+//		frame.getContentPane().add(btnChat);
+		
+		///////////////////////////////////////
 		
 		lblFileRequests = new JLabel("File Requests");
 		lblFileRequests.setFont(new Font("Tahoma", Font.PLAIN, 13));
