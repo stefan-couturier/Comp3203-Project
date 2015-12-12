@@ -10,8 +10,7 @@ public class Server implements Runnable{
 	private final static int PORT_NUM = 45000;
 	public static ServerSocket serv;
 	public static Socket clnt;
-	public static String root_dir = "C:\\Users\\Andrew\\Test";
-	public static String path;
+	public static String root_dir;
 	public static File current_file;
 
 	private ServerThread clients[] = new ServerThread[50];
@@ -24,9 +23,10 @@ public class Server implements Runnable{
 
 
 	public Server(int port){
-		//File[] roots = File.listRoots();
-		//root_dir = roots[0].toString()+"\\SERVER";
-		path = root_dir;
+		File[] roots = File.listRoots();
+		root_dir = roots[0].toString();		
+		createDirectory();
+		
 		gui = new ServerGUI();
 		try{
 			System.out.println("Binding to port " + port + ", please wait  ...");
@@ -415,6 +415,32 @@ public class Server implements Runnable{
 	    	server = new Server(PORT_NUM);
 	    else
 	    	server = new Server(Integer.parseInt(args[0]));
+	}
+	
+	private static void createDirectory(){
+		//if exists
+		boolean success = false;
+		System.out.println("\tdirectory " + root_dir + "\n");
+		File aFile = new File(root_dir + "SERVER3203");
+		System.out.println("\tdirectory " + aFile.getAbsolutePath() + "\n");
+		if (aFile.exists()){
+			//Check permissions
+			if (aFile.canWrite()){
+				System.out.println("\tdirectory " + aFile.getAbsolutePath() +" already exists and can write");
+			}
+			else{
+				System.out.println("\tdirectory " + aFile.getAbsolutePath() +" already exists and cannot write");
+			}	
+		}
+		else{
+			success = aFile.mkdir();
+			if (success)
+				System.out.println("\tDirectory " + aFile.getAbsolutePath() +" Created");
+			else
+				System.out.println("\tDirectory " + aFile.getAbsolutePath() +" failed to be created");
+		}
+		root_dir = root_dir + "SERVER" + "\\";
+		
 	}
 	
 //	public static void main(String[] args) {
