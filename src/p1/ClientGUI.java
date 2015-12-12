@@ -289,8 +289,10 @@ public class ClientGUI {
 	}
 	
 	public void selectPeer() {
-		selectedPeer = (String) peerList.getSelectedValue();
-		requestPeerFileList();
+		if((String) peerList.getSelectedValue() != null){
+			selectedPeer = (String) peerList.getSelectedValue();
+			requestPeerFileList();
+		}
 	}
 	
 	public void selectPeerFile() {
@@ -362,7 +364,7 @@ public class ClientGUI {
 		disableListeners();
 		selectedServerFile = null;
 		selectedClientFile = null;
-		selectedPeer = null;
+		//selectedPeer = null;
 		selectedFileRequest = null;
 		
 		serverFiles = new ArrayList<String>(s);
