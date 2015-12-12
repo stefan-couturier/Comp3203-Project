@@ -439,7 +439,7 @@ public class Server implements Runnable{
 			else
 				System.out.println("\tDirectory " + aFile.getAbsolutePath() +" failed to be created");
 		}
-		root_dir = root_dir + "SERVER" + "\\";
+		root_dir = root_dir + "SERVER3203" + "\\";
 		
 	}
 	
