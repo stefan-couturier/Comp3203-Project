@@ -51,6 +51,7 @@ public class ClientGUI {
 	private boolean requestingUpload;
 	private boolean requestingRefresh;
 	private boolean requestingPeerFile;
+	private boolean requestingPeerFileList;
 	
 	private ArrayList<String> serverFiles;
 	private ArrayList<String> clientFiles;
@@ -232,6 +233,10 @@ public class ClientGUI {
 		return requestingPeerFile;
 	}
 	
+	public synchronized boolean isRequestingPeerFileList() {
+		return requestingPeerFileList;
+	}
+	
 	public synchronized void setRequestingDownload(boolean b) {
 		requestingDownload = b;
 	}
@@ -254,6 +259,10 @@ public class ClientGUI {
 	
 	public synchronized void setRequestingPeerFile(boolean b) {
 		requestingPeerFile = b;
+	}
+	
+	public synchronized void setRequestingPeerFileList(boolean b) {
+		requestingPeerFileList = b;
 	}
 	
 	public void requestDownload() {
@@ -284,6 +293,12 @@ public class ClientGUI {
 	public void requestPeerFile() {
 		if (selectedPeer != null && selectedPeerFile != null) {
 			requestingPeerFile = true;
+		}
+	}
+	
+	public void requestPeerFileList() {
+		if (selectedPeer != null) {
+			requestingPeerFileList = true;
 		}
 	}
 	

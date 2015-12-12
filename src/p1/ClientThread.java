@@ -42,7 +42,7 @@ public class ClientThread extends Thread {
 					String ip = inputStream.readUTF();
 					client.sendP2PFile(ip);
 				}
-				else if (received.equals("recievePeerfiles")){
+				else if (received.equals("PeerFileList")){
 					client.recievePeerFileList(inputStream);
 				}
 				else if (received.equals("getPeerfiles")){

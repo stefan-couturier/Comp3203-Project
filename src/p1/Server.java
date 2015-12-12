@@ -70,6 +70,13 @@ public class Server implements Runnable{
 		return -1;
 	}
 	
+	private int findClientByUsername(String username){
+		for (int i = 0; i < clientCount; i++)
+			if (clients[i].getUsername().equals(username))
+				return i;
+		return -1;
+	}
+	
 	public synchronized void handle(int ID, String input, DataInputStream inputStream, DataOutputStream outputStream){
 		if (input.equals(".bye")){
 			clients[findClient(ID)].send(".bye");
@@ -101,6 +108,18 @@ public class Server implements Runnable{
 		try {
 			receiveFile(root_dir, inputStream);
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public synchronized void handleGetPeerFiles(int ID, String peerName, DataOutputStream outputStream){
+		int peerID;
+		peerID = findClientByUsername(peerName);
+		ArrayList<String> peerFiles = clients[peerID].getFiles();
+		try{
+			outputStream.writeUTF("PeerFileList");
+			sendArrayList(peerFiles,outputStream);
+		}catch (IOException e){
 			e.printStackTrace();
 		}
 	}

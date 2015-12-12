@@ -99,6 +99,10 @@ public class Client extends JPanel implements Runnable {
 				else if (gui.isRequestingRefresh()) {
 					streamOut.writeUTF("update"); // requests updated lists from server
 					System.out.println("CLIENT sent:\tupdate");
+					
+					//send local file list
+					sendFileList();
+					
 					gui.setRequestingRefresh(false);
 				}
 				else if (gui.isRequestingDownload()) {
@@ -141,6 +145,15 @@ public class Client extends JPanel implements Runnable {
 						streamOut.flush();
 					}
 					gui.setRequestingResponse(false);
+				}
+				else if (gui.isRequestingPeerFileList()){
+					String peerName = gui.getSelectedPeer();
+					if (peerName!=null){
+						streamOut.writeUTF("getPeerFileList");
+						// mark this file request as "PENDING" status to notify waiting client 
+						streamOut.writeUTF(peerName);
+						streamOut.flush();
+					}
 				}
 				//streamOut.writeUTF(console.readLine());
 	            streamOut.flush();
@@ -260,6 +273,11 @@ public class Client extends JPanel implements Runnable {
 	}
 	
 	public void sendFileList(){
+		try{
+			streamOut.writeUTF("fileList");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		sendArrayList(getFileList(),streamOut);
 	}
 	
