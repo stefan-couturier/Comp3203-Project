@@ -408,7 +408,7 @@ public class ClientGUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 691, 680);
+		frame.setBounds(100, 100, 700, 700);
 		frame.setLocation(20, 20);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
@@ -520,7 +520,7 @@ public class ClientGUI {
 		///////////////////////////////////////
 		lblFilesOnPeer = new JLabel("Peer's files");
 		lblFilesOnPeer.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblFilesOnPeer.setBounds(460+(460-243), 166, 109, 14);
+		lblFilesOnPeer.setBounds(460, 400, 109, 14);
 		frame.getContentPane().add(lblFilesOnPeer);
 		
 		peerFileList = new JList<String>();
@@ -531,7 +531,7 @@ public class ClientGUI {
 		peerFileScrollPane = new JScrollPane(peerFileList,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		peerFileScrollPane.setBounds(460+460-243, 191, 190, 146);
+		peerFileScrollPane.setBounds(460, 425, 190, 146);
 		frame.getContentPane().add(peerFileScrollPane);
 		
 //		btnChat = new JButton("Peer-to-Peer ");
