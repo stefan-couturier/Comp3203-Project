@@ -86,6 +86,13 @@ public class ServerThread extends Thread {
 				else if (received.equals("response")) {
 					server.setFileRequestToPending(inputStream.readUTF(), username);
 				}
+				else if (received.equals("message")){
+					String m = inputStream.readUTF();
+					for(int i=0; i<server.getClientCount();i++){
+						server.getThread(i).send("message");
+						server.getThread(i).send(m);
+					}
+				}
 				else if (received.equals("getPeerFileList")){
 					String peerName = inputStream.readUTF();
 					System.out.println("SERVERThread "+ ID + " Recieved:\t"+peerName);

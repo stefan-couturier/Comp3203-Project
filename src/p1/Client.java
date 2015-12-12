@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 
 public class Client extends JPanel implements Runnable {
 	private final static int PORT_NUM = 45000;
-	private static String IP_ADDRESS = "134.117.28.138";
+	private static String IP_ADDRESS = "000.000.00.000";
 	public static Socket s;
 	public static String path = "";
 	public static String username = "";
@@ -31,9 +31,6 @@ public class Client extends JPanel implements Runnable {
 	
 	
 	public Client(String serverName, int serverPort){
-		//File[] roots = File.listRoots();
-		//path = roots[0].toString()+"\\CLIENT";
-		
 		gui = new ClientGUI();
 		
 		System.out.println("Establishing connection. Please wait ...");
@@ -49,8 +46,6 @@ public class Client extends JPanel implements Runnable {
 	}
 	
 	public Client(String serverName, int serverPort, String PATH, String user){
-		//File[] roots = File.listRoots();
-		//path = roots[0].toString()+"\\CLIENT";
 		path = PATH;
 		username = user;
 		gui = new ClientGUI();
@@ -125,27 +120,13 @@ public class Client extends JPanel implements Runnable {
 					System.out.println("CLIENT sent:\t"+selectedClientFile);
 					gui.setRequestingUpload(false);
 				}
-				else if (gui.isRequestingPost()) {
-					String description = "";
-					description = JOptionPane.showInputDialog("Enter a description of the file you'd like to request:");
-					String host = InetAddress.getLocalHost().getHostAddress();
-					if (description != null && !description.equals("")) {
-						streamOut.writeUTF("post");
-						streamOut.writeUTF(description);
-						streamOut.writeUTF(host);
-						streamOut.flush();
-					}
-					gui.setRequestingPost(false);
-				}
-				else if (gui.isRequestingResponse()) {
-					String filename = gui.getSelectedFileRequest();
-					if (filename != null) {
-						streamOut.writeUTF("response");
-						// mark this file request as "PENDING" status to notify waiting client 
-						streamOut.writeUTF(filename);
-						streamOut.flush();
-					}
-					gui.setRequestingResponse(false);
+				else if(gui.isRequestingSendToChat()){
+					String message = gui.getChatMessage();
+					streamOut.writeUTF("message"); // requests to post on chat
+					System.out.println("CLIENT sent:\tmessage");
+					streamOut.writeUTF(username + ": "+message);
+					System.out.println("CLIENT sent:\t"+message);
+					gui.setRequestingSendToChat(false);
 				}
 				else if (gui.isRequestingPeerFileList()){
 					String peerName = gui.getSelectedPeer();
@@ -514,6 +495,10 @@ public class Client extends JPanel implements Runnable {
 				System.err.println("--error: " + e.getMessage());
 			}
 		}
+	}
+
+	public void recieveMessage(String m) {
+		gui.appendChat(m);
 	}
 
 	
