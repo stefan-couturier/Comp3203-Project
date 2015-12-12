@@ -53,13 +53,18 @@ public class Server implements Runnable{
 				addThread(server.accept());
 			}
 			catch(IOException ioe){
-					System.out.println("Server accept error: " + ioe); stop();
+					System.out.println("Server accept error: " + ioe);
+					stop();
+			}
+			if (gui.isTERMINATING()){
+				System.out.println("SERVER:\tClosing");
+				for(int x =0; x< clientCount; x++){
+					clients[x].send("TERMINATE");
+				}
+				stop();
 			}
 		}
-		System.out.println("Closing");
-		for(int x =0; x< clientCount; x++){
-			clients[x].send("TERMINATE");
-		}
+		
 	}
 
 	public void start(){
