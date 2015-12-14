@@ -172,6 +172,9 @@ public class Server implements Runnable{
 			clientCount--;
 			try{
 				toTerminate.close(); 
+				if(clientCount >= 1){
+					clients[0].updateAllThreads();
+				}
 			}
 			catch(IOException ioe){
 				System.out.println("Error closing thread: " + ioe); 
