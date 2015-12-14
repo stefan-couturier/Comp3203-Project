@@ -152,12 +152,13 @@ public class Server implements Runnable{
 	}
 	
 	public synchronized void handleGetPeerFile(int ID, String filename,
-			String peerName, String ip, DataOutputStream outputStream){
+			String peerName, String ip, int port, DataOutputStream outputStream){
 		int peerID;
 		peerID = findClientByUsername(peerName);
 		clients[peerID].send("sendPeerFile");
 		clients[peerID].send(ip);
 		clients[peerID].send(filename);
+		clients[peerID].send(port);
 	}
 	
 	

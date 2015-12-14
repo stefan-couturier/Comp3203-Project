@@ -19,6 +19,7 @@ public class Client extends JPanel implements Runnable {
 	public static String username = "";
 	
 	private Thread thread = null;
+	private int currPeerPortNum;
 	private ClientThread clientThread = null;
 	private Socket  socket   = null;
 	private DataInputStream  console   = null;
@@ -49,6 +50,7 @@ public class Client extends JPanel implements Runnable {
 		path = PATH;
 		username = user;
 		IP_ADDRESS = serverName;
+		currPeerPortNum=60000;
 		gui = new ClientGUI();
 		gui.getFrame().setTitle(user);
 		System.out.println("Establishing connection. Please wait ...");
@@ -143,6 +145,7 @@ public class Client extends JPanel implements Runnable {
 						streamOut.writeUTF(gui.getSelectedPeer());
 						streamOut.writeUTF(peerFile);
 						streamOut.writeUTF(InetAddress.getLocalHost().getHostAddress());
+						streamOut.writeInt(currPeerPortNum);
 						streamOut.flush();
 					}
 					gui.setRequestingPeerFile(false);
@@ -168,10 +171,12 @@ public class Client extends JPanel implements Runnable {
 	
 	public void uploadFile() {
 		try {
+			gui.disable("Uploading");
 			sendFile(selectedClientFile, streamOut);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		gui.enable();
 	}
 	
 	
@@ -206,6 +211,11 @@ public class Client extends JPanel implements Runnable {
 	    System.out.println("Try again");
 	    clientThread.close();  
 	    clientThread.stop();
+	}
+	
+	public void terminate(){
+		gui.terminate();
+		stop();
 	}
 	
 	public ClientGUI getGUI() {
@@ -359,22 +369,25 @@ public class Client extends JPanel implements Runnable {
 	
 	
 	public void receiveP2PFile() throws IOException {
-		P2PServer p2p = new P2PServer(60000, path);
+		P2PServer p2p = new P2PServer(currPeerPortNum++, path);
 		System.out.println("starting p2p receive");
+		gui.disable("Downloading From Peer");
 		p2p.run();
+		gui.enable();
 		System.out.println("updating client list after p2p receive");
 		gui.updateClientList(getFileList());
 		System.out.println("finished p2p receive");
 	}
 	
-	public void sendP2PFile(String ipAdd, String filename) throws IOException {
-		P2PClient p2p = new P2PClient(ipAdd, 60000, path, filename);
+	public void sendP2PFile(String ipAdd, String filename, int portNum) throws IOException {
+		P2PClient p2p = new P2PClient(ipAdd, portNum, path, filename);
 		System.out.println("starting p2p send");
 		p2p.run();
 		System.out.println("finished p2p send");
 	}
 
 	public void receiveFile(DataInputStream request) throws IOException {
+		gui.disable("Downloading");
 		int r_byt = 0;
 		String f_name = null;
 		long f_size = 0;
@@ -402,6 +415,7 @@ public class Client extends JPanel implements Runnable {
 				System.err.println("--error: " + e.getMessage());
 			}
 		}
+		gui.enable();
 	}
 	
 	public void recieveMessage(String m) {

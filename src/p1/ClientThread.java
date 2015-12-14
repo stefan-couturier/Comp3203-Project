@@ -51,7 +51,8 @@ public class ClientThread extends Thread {
 				else if (received.equals("sendPeerFile")) {
 					String ip = inputStream.readUTF();
 					String filename = inputStream.readUTF();
-					client.sendP2PFile(ip, filename);
+					int portNum = inputStream.readInt();
+					client.sendP2PFile(ip, filename, portNum);
 					client.requestRefresh();
 				}
 				else if (received.equals("PeerFileList")){
@@ -64,7 +65,7 @@ public class ClientThread extends Thread {
 				}
 
 				else if (received.equals("TERMINATE")){
-					client.stop();
+					client.terminate();
 				}
 				else if (received.equals("message")){
 					String message = inputStream.readUTF();

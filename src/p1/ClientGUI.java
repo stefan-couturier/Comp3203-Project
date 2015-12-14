@@ -15,8 +15,8 @@ import java.awt.event.ActionEvent;
 public class ClientGUI {
 
 	private JFrame frame;
+	
 	private JLabel lblClient;
-	private JButton btnRefreshLists;
 	private JLabel lblIpAddress;
 	private JLabel label;
 	private JLabel lblPortNumber;
@@ -24,19 +24,25 @@ public class ClientGUI {
 	private JLabel lblConnectionStatus;
 	private JLabel lblFilesOnServer;
 	private JLabel lblFilesOnPeer;
+	private JLabel lblFilesOnSystem;
+	private JLabel lblOnlinePeers;
+	
 	private JList<String> serverFileList;
 	private JList<String> clientFileList;
 	private JList<String> peerList;
 	private JList<String> peerFileList;
+	
 	private JScrollPane serverFileScrollPane;
 	private JScrollPane clientFileScrollPane;
 	private JScrollPane peerScrollPane;
 	private JScrollPane peerFileScrollPane;
+	
+	private JButton btnRefreshLists;
 	private JButton btnDownloadAFile;
-	private JLabel lblFilesOnSystem;
 	private JButton btnUploadAFile;
-	private JLabel lblOnlinePeers;
 	private JButton btnDownloadPeerFile;
+	private JButton btnSend;
+
 	
 	private String IPAddress = "0.0.0.0";
 	private int portNumber = 0;
@@ -70,7 +76,6 @@ public class ClientGUI {
 	
 	private JLabel lblChat;
 	private JScrollPane chatScrollPane;
-	private JButton btnSend;
 	//private ArrayList<String> fileRequests;
 	//private String selectedFileRequest;
 	//private ListSelectionListener fileRequestListSelectionListener;
@@ -483,7 +488,7 @@ public class ClientGUI {
 		
 		lblConnectionStatus = new JLabel("Connection Status: ");
 		lblConnectionStatus.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblConnectionStatus.setBounds(400, 90, 125, 14);
+		lblConnectionStatus.setBounds(400, 90, 275, 14);
 		frame.getContentPane().add(lblConnectionStatus);
 		
 		lblFilesOnServer = new JLabel("Files on Server");
@@ -620,5 +625,41 @@ public class ClientGUI {
 	
 	public void appendChat(String message){
 		chatArea.append(message+"\n");
+	}
+	
+	public void terminate(){
+		JOptionPane.showMessageDialog(frame,
+			    "CLOSING,\nThe server has shut down, the application is now closing.",
+			    "Help",
+			    JOptionPane.INFORMATION_MESSAGE);
+		return;
+	}
+	
+	public void disable(String reason){
+		disableListeners();
+		disableButtons();
+		lblConnectionStatus.setText("Connection Status:\t    "+reason);
+	}
+	
+	public void enable(){
+		enableListeners();
+		enableButtons();
+		lblConnectionStatus.setText("Connection Status:\t    Ready");
+	}
+	
+	private void disableButtons(){
+		btnRefreshLists.setEnabled(false);
+		btnDownloadAFile.setEnabled(false);
+		btnUploadAFile.setEnabled(false);
+		btnDownloadPeerFile.setEnabled(false);
+		btnSend.setEnabled(false);
+	}
+	
+	private void enableButtons(){
+		btnRefreshLists.setEnabled(true);
+		btnDownloadAFile.setEnabled(true);
+		btnUploadAFile.setEnabled(true);
+		btnDownloadPeerFile.setEnabled(true);
+		btnSend.setEnabled(true);
 	}
 }

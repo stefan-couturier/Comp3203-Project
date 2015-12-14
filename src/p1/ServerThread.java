@@ -120,8 +120,9 @@ public class ServerThread extends Thread {
 					String peerName = inputStream.readUTF();
 					String peerFile = inputStream.readUTF();
 					String ipAdd = inputStream.readUTF();
+					int peerPort = inputStream.readInt();
 					send("receivePeerFile");
-					server.handleGetPeerFile(ID, peerFile, peerName, ipAdd, outputStream);
+					server.handleGetPeerFile(ID, peerFile, peerName, ipAdd, peerPort, outputStream);
 				}
 				
 			}
@@ -148,6 +149,18 @@ public class ServerThread extends Thread {
 	public void send(String msg){
 		try {  
 			outputStream.writeUTF(msg);
+			outputStream.flush();
+		}
+		catch(IOException ioe) {  
+			System.out.println(ID + " ERROR sending: " + ioe.getMessage());
+			server.remove(ID);
+			//stop();
+		}
+	}
+	
+	public void send(int msg){
+		try {  
+			outputStream.writeInt(msg);
 			outputStream.flush();
 		}
 		catch(IOException ioe) {  
