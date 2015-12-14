@@ -455,7 +455,10 @@ public class ClientGUI {
 		
 		btnRefreshLists = new JButton("Refresh");
 		btnRefreshLists.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnRefreshLists.setBounds(27, 98, 169, 23);
+		btnRefreshLists.setToolTipText(
+				"<html>Refresh your lists of Server files" + 
+		        "<br/>and Online Peers.</html>");
+		btnRefreshLists.setBounds(27, 98, 160, 23);
 		frame.getContentPane().add(btnRefreshLists);
 		
 		lblIpAddress = new JLabel("IP Address: ");
@@ -499,7 +502,10 @@ public class ClientGUI {
 		
 		btnDownloadAFile = new JButton("Download a File");
 		btnDownloadAFile.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		btnDownloadAFile.setBounds(27, 354, 155, 23);
+		btnDownloadAFile.setToolTipText(
+				"<html>Download the file you have selected" +
+				"<br/>from the Server.</html>");
+		btnDownloadAFile.setBounds(27, 354, 160, 23);
 		frame.getContentPane().add(btnDownloadAFile);
 		
 		lblFilesOnSystem = new JLabel("Files on System");
@@ -518,7 +524,10 @@ public class ClientGUI {
 		
 		btnUploadAFile = new JButton("Upload a File");
 		btnUploadAFile.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		btnUploadAFile.setBounds(243, 354, 155, 23);
+		btnUploadAFile.setToolTipText(
+				"<html>Upload your local file that you" +
+		        "<br/>have selected to the Server.</html>");
+		btnUploadAFile.setBounds(243, 354, 160, 23);
 		frame.getContentPane().add(btnUploadAFile);
 		
 		lblOnlinePeers = new JLabel("Online Peers");
@@ -541,14 +550,20 @@ public class ClientGUI {
 			}
 		});*/
 		btnDownloadPeerFile.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		btnDownloadPeerFile.setToolTipText("Download the file you have selected from your peer's file list.");
-		btnDownloadPeerFile.setBounds(460, 355, 170, 23);
+		btnDownloadPeerFile.setToolTipText(
+				"<html>Download the file you have selected" +
+		        "<br/>from your peer's file list.</html>");
+		btnDownloadPeerFile.setBounds(460, 355, 160, 23);
 		frame.getContentPane().add(btnDownloadPeerFile);
 		
 		
 		///////////////////////////////////////
 		lblFilesOnPeer = new JLabel("Peer's files");
 		lblFilesOnPeer.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblFilesOnPeer.setToolTipText(
+				"<html>These are the files that the currently selected" +
+				"<br/>peer has to share. To download one, select it and" + 
+				"<br/>hit 'Download a Peer File' above.</html>");
 		lblFilesOnPeer.setBounds(460, 400, 109, 14);
 		frame.getContentPane().add(lblFilesOnPeer);
 		
@@ -583,6 +598,7 @@ public class ClientGUI {
 		
 		tbSend = new JTextField();
 		tbSend.setBounds(27, 596, 406, 20);
+		tbSend.setToolTipText("Type a message here to post to the Chat Board.");
 		frame.getContentPane().add(tbSend);
 		tbSend.setColumns(10);
 	}
