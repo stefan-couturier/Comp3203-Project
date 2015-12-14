@@ -65,13 +65,6 @@ public class Client extends JPanel implements Runnable {
 	      {  System.out.println("Unexpected exception: " + ioe.getMessage()); }
 	}
 	
-	public static void main(String args[]) {
-		Client client = null;
-	    if (args.length != 2)
-	    	client = new Client(IP_ADDRESS, PORT_NUM);
-	    else
-	        client = new Client(args[0], Integer.parseInt(args[1]));
-	}
 	
 	
 	public void run(){
