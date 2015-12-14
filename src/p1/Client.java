@@ -407,6 +407,18 @@ public class Client extends JPanel implements Runnable {
 	public void recieveMessage(String m) {
 		gui.appendChat(m);
 	}
+
+	public void requestRefresh() {
+		try{
+			sendFileList();
+			streamOut.writeUTF("update"); // requests updated lists from server
+			System.out.println("CLIENT sent:\tupdate");
+			gui.setRequestingRefresh(false);
+		}
+		catch (Exception e){
+			System.err.println("--error: Unable to request update --Message:" + e.getMessage());
+		}
+	}
 	
 	
 	/*private File findFile(String name){

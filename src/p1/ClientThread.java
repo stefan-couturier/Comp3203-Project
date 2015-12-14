@@ -32,8 +32,10 @@ public class ClientThread extends Thread {
 					client.receiveFile(inputStream);
 					client.getGUI().updateClientList(client.getFileList());
 				}
-				else if (received.equals("upload"))
+				else if (received.equals("upload")){
 					client.uploadFile();
+					client.requestRefresh();
+				}
 				//else if (received.equals("noupload"))
 					//;
 				/*else if (received.equals("pending"))
@@ -44,17 +46,21 @@ public class ClientThread extends Thread {
 				}*/
 				else if (received.equals("receivePeerFile")) {
 					client.receiveP2PFile();
+					client.requestRefresh();
 				}
 				else if (received.equals("sendPeerFile")) {
 					String ip = inputStream.readUTF();
 					String filename = inputStream.readUTF();
 					client.sendP2PFile(ip, filename);
+					client.requestRefresh();
 				}
 				else if (received.equals("PeerFileList")){
 					client.recievePeerFileList(inputStream);
+					client.requestRefresh();
 				}
 				else if (received.equals("getPeerfiles")){
 					client.sendFileList();
+					client.requestRefresh();
 				}
 
 				else if (received.equals("TERMINATE")){
@@ -63,6 +69,7 @@ public class ClientThread extends Thread {
 				else if (received.equals("message")){
 					String message = inputStream.readUTF();
 					client.recieveMessage(message);
+					client.requestRefresh();
 				}
 			}
 			catch(IOException ioe) {

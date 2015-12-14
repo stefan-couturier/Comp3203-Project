@@ -63,6 +63,7 @@ public class ServerThread extends Thread {
 					send("download"); // lets the clientThread get ready to download from server
 					System.out.println("SERVERThread "+ ID + " Sent:\tdownload");
 					server.handleDownload(ID, filename, outputStream);
+					updateAllThreads();
 				} 
 				else if (received.equals("upload")) {
 					String filename = inputStream.readUTF();
@@ -71,6 +72,7 @@ public class ServerThread extends Thread {
 						send("upload"); // lets the clientThread get ready to upload to server
 						System.out.println("SERVERThread "+ ID + " Sent:\tupload");
 						server.handleUpload(ID, filename, inputStream);
+						updateAllThreads();
 					} 
 					else{
 						send("noupload");
@@ -79,6 +81,7 @@ public class ServerThread extends Thread {
 				}
 				else if (received.equals("username")) {
 					username = inputStream.readUTF();
+					updateAllThreads();
 				}
 				/*else if (received.equals("post")) {
 					server.addFileRequest(inputStream.readUTF(), inputStream.readUTF(), username);
@@ -97,6 +100,7 @@ public class ServerThread extends Thread {
 					String peerName = inputStream.readUTF();
 					System.out.println("SERVERThread "+ ID + " Recieved:\t"+peerName);
 					server.handleGetPeerFiles(ID,peerName,outputStream);
+					updateAllThreads();
 				}
 				else if (received.equals("fileList")){
 					try {
@@ -107,6 +111,7 @@ public class ServerThread extends Thread {
 							files.add(inputStream.readUTF());
 							System.out.println("SERVERThread "+ ID + " Recieved:\tFilename: "+files.get(i));
 						}
+						updateAllThreads();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -150,6 +155,16 @@ public class ServerThread extends Thread {
 			server.remove(ID);
 			//stop();
 		}
+	}
+	
+	public void updateAllThreads(){	
+			for(int i=0; i<server.getClientCount();i++){
+				server.getThread(i).send("update");
+				System.out.println("SERVERThread "+ server.getThread(i).ID + " Sent:\tupdate");
+				
+				//receive file list
+				server.handleUpdateLists(server.getThread(i).ID, server.getThread(i).outputStream);
+			}
 	}
 
 	/*public void sendFileList(ArrayList<String> list) {

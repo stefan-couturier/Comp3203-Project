@@ -30,14 +30,14 @@ public class Server implements Runnable{
 	}
 
 	public Server(int port){
-		//File[] roots = File.listRoots();
-		//root_dir = roots[0].toString();
+		File[] roots = File.listRoots();
+		root_dir = roots[0].toString();
 		////////
 		//root_dir = "Z:\\";
 		//System.out.println("!"+root_dir+"!");
 		////////
-		//createDirectory();
-		root_dir = "C:\\Test";
+		createDirectory();
+		//root_dir = "C:\\Test\\";
 		
 		gui = new ServerGUI(this);
 		try{
