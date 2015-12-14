@@ -601,6 +601,22 @@ public class ClientGUI {
 		tbSend.setToolTipText("Type a message here to post to the Chat Board.");
 		frame.getContentPane().add(tbSend);
 		tbSend.setColumns(10);
+		
+		JButton btnHelp = new JButton("Help");
+		btnHelp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int n = JOptionPane.showOptionDialog(frame,
+					    "Welcome to the File Transfer System,\nThis application allows you to transfer files between yourself and the server or " +
+					    "yourself and another user who is currently connected.\nIf you are unsure what a button does hover over it with your mouse "+
+					    "and a description box will appear.\n\t\tPlease enjoy our program !",
+					    "Help",
+					    JOptionPane.OK_OPTION,
+					    JOptionPane.QUESTION_MESSAGE,
+					    null, null, null);
+			}
+		});
+		btnHelp.setBounds(27, 64, 169, 23);
+		frame.getContentPane().add(btnHelp);
 	}
 	
 	public void appendChat(String message){
