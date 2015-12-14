@@ -117,7 +117,7 @@ public class Server implements Runnable{
 	// this is to send updated lists to a client when requested from client
 	public synchronized void handleUpdateLists(int ID, DataOutputStream outputStream) {
 		sendArrayList(getFileList(), outputStream);
-		sendArrayList(getPeerList(), outputStream);
+		sendArrayList(getPeerList(ID), outputStream);
 		//sendArrayList(getFileRequests(), outputStream);
 	}
 	
@@ -308,10 +308,11 @@ public class Server implements Runnable{
 		
 	}
 	
-	public ArrayList<String> getPeerList() {
+	public ArrayList<String> getPeerList(int ID) {
 		ArrayList<String> peers = new ArrayList<String>();
 		for (int i = 0; i < clientCount; i++)
-			peers.add(clients[i].getUsername());
+			if (clients[i].getID()!=ID)
+				peers.add(clients[i].getUsername());
 		return peers;
 	}
 	

@@ -17,7 +17,7 @@ public class ClientThread extends Thread {
 	
 	//Run thread
 	public void run(){
-		System.out.println("client thread Running.");
+		System.out.println("client thread Running. Port: "+socket.getPort());
 		String received;
 		while(true) {
 			try {
