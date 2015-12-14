@@ -619,7 +619,7 @@ public class ClientGUI {
 			}
 			
 		});
-		btnHelp.setBounds(27, 64, 169, 23);
+		btnHelp.setBounds(27, 64, 160, 23);
 		frame.getContentPane().add(btnHelp);
 	}
 	
