@@ -486,7 +486,7 @@ public class ClientGUI {
 		label_1.setBounds(550, 61, 46, 14);
 		frame.getContentPane().add(label_1);
 		
-		lblConnectionStatus = new JLabel("Connection Status: ");
+		lblConnectionStatus = new JLabel("Connection Status: Ready");
 		lblConnectionStatus.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblConnectionStatus.setBounds(400, 90, 275, 14);
 		frame.getContentPane().add(lblConnectionStatus);
