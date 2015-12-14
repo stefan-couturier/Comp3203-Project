@@ -16,7 +16,7 @@ public class ClientGUI {
 
 	private JFrame frame;
 	private JLabel lblClient;
-	private JButton btnTerminateConnection;
+	private JButton btnRefreshLists;
 	private JLabel lblIpAddress;
 	private JLabel label;
 	private JLabel lblPortNumber;
@@ -36,7 +36,7 @@ public class ClientGUI {
 	private JLabel lblFilesOnSystem;
 	private JButton btnUploadAFile;
 	private JLabel lblOnlinePeers;
-	private JButton btnChat;
+	private JButton btnDownloadPeerFile;
 	
 	private String IPAddress = "0.0.0.0";
 	private int portNumber = 0;
@@ -58,8 +58,7 @@ public class ClientGUI {
 	private ArrayList<String> peers;
 	private ArrayList<String> peerFiles;
 	
-	private ActionListener initiateButtonListener;
-	private ActionListener terminateButtonListener;
+	private ActionListener refreshButtonListener;
 	private ActionListener downloadButtonListener;
 	private ActionListener uploadButtonListener;
 	private ActionListener downloadPeerFileButtonListener;
@@ -72,12 +71,12 @@ public class ClientGUI {
 	private JLabel lblChat;
 	private JScrollPane chatScrollPane;
 	private JButton btnSend;
-	private ArrayList<String> fileRequests;
-	private String selectedFileRequest;
-	private ListSelectionListener fileRequestListSelectionListener;
+	//private ArrayList<String> fileRequests;
+	//private String selectedFileRequest;
+	//private ListSelectionListener fileRequestListSelectionListener;
 	
-	Timer timer;
-	private ActionListener timerTick;
+	//Timer timer;
+	//private ActionListener timerTick;
 	public JTextField tbSend;
 	private String chatMessage;
 	private JTextArea chatArea;
@@ -106,9 +105,9 @@ public class ClientGUI {
 		clientFiles = new ArrayList<String>();
 		peers = new ArrayList<String>();
 		peerFiles = new ArrayList<String>();
-		fileRequests = new ArrayList<String>();
+		//fileRequests = new ArrayList<String>();
 		
-		timer = new Timer(5000, null);	
+		//timer = new Timer(5000, null);	
 		//peers.add("//TODO:");
 		
 		selectedServerFile = null;
@@ -117,16 +116,11 @@ public class ClientGUI {
 		selectedPeerFile = null;
 		requestingDownload = false;
 		requestingUpload = false;
-		selectedFileRequest = null;
+		//selectedFileRequest = null;
 		requestingPeerFile = false;
 		
-		initiateButtonListener = new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				
-			}
-		};
 		
-		terminateButtonListener = new ActionListener() {
+		refreshButtonListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				requestRefresh();
 			}
@@ -174,19 +168,19 @@ public class ClientGUI {
 			}
 		};
 		
-		fileRequestListSelectionListener = new ListSelectionListener() {
+		/*fileRequestListSelectionListener = new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent event) {
 			}
-		};
+		};*/
 		
-		timerTick = new ActionListener() {
+		/*timerTick = new ActionListener() {
 			public void actionPerformed(ActionEvent event){
 				requestRefresh();
 
 				System.out.println("tick");
 
 			}
-		};
+		};*/
 		
 		sendButtonListener = new ActionListener(){
 			public void actionPerformed(ActionEvent event){
@@ -199,7 +193,7 @@ public class ClientGUI {
 		initialize();
 		this.frame.setVisible(true);
 		enableListeners();
-		timer.start();
+		///timer.start();
 	}
 	
 	
@@ -315,9 +309,9 @@ public class ClientGUI {
 		return selectedPeerFile;
 	}
 	
-	public String getSelectedFileRequest() {
+	/*public String getSelectedFileRequest() {
 		return selectedFileRequest;
-	}
+	}*/
 	
 	public String getIPAddress() {
 		return IPAddress;
@@ -359,18 +353,18 @@ public class ClientGUI {
 	// Update lists
 	@SuppressWarnings("unchecked")
 	public void updateLists(ArrayList<String> s, ArrayList<String> c, 
-			ArrayList<String> p, ArrayList<String> r) {
+			ArrayList<String> p) {
 		System.out.println("CLIENT GUI:\tupdateLists");
 		disableListeners();
 		selectedServerFile = null;
 		selectedClientFile = null;
 		//selectedPeer = null;
-		selectedFileRequest = null;
+		//selectedFileRequest = null;
 		
 		serverFiles = new ArrayList<String>(s);
 		clientFiles = new ArrayList<String>(c);
 		peers = new ArrayList<String>(p);
-		fileRequests = new ArrayList<String>(r);
+		//fileRequests = new ArrayList<String>(r);
 
 		String strServer[] = new String[1]; // needed to establish array type for next line
 		serverFileList.setListData((String[]) serverFiles.toArray(strServer));
@@ -378,7 +372,7 @@ public class ClientGUI {
 		clientFileList.setListData((String[]) clientFiles.toArray(strClient));
 		String strPeer[] = new String[1]; // needed to establish array type for next line
 		peerList.setListData((String[]) peers.toArray(strPeer));
-		String strRequests[] = new String[1]; // needed to establish array type for next line
+		//String strRequests[] = new String[1]; // needed to establish array type for next line
 
 		enableListeners();
 	}
@@ -416,7 +410,7 @@ public class ClientGUI {
 
 	// Enable listeners
 	private void enableListeners() {
-		btnTerminateConnection.addActionListener(terminateButtonListener);
+		btnRefreshLists.addActionListener(refreshButtonListener);
 		btnDownloadAFile.addActionListener(downloadButtonListener);
 		btnUploadAFile.addActionListener(uploadButtonListener);
 		serverFileList.addListSelectionListener(serverFileListSelectionListener);
@@ -424,16 +418,14 @@ public class ClientGUI {
 		peerList.addListSelectionListener(peerListSelectionListener);
 		peerFileList.addListSelectionListener(peerFilesListSelectionListener);
 		btnSend.addActionListener(sendButtonListener);
-
-		btnChat.addActionListener(downloadPeerFileButtonListener);
-
-		timer.addActionListener(timerTick);
+		btnDownloadPeerFile.addActionListener(downloadPeerFileButtonListener);
+		//timer.addActionListener(timerTick);
 	}
 
 
 	// Disable listeners
 	private void disableListeners() {
-		btnTerminateConnection.removeActionListener(terminateButtonListener);
+		btnRefreshLists.removeActionListener(refreshButtonListener);
 		btnDownloadAFile.removeActionListener(downloadButtonListener);
 		btnUploadAFile.removeActionListener(uploadButtonListener);
 		serverFileList.removeListSelectionListener(serverFileListSelectionListener);
@@ -441,11 +433,8 @@ public class ClientGUI {
 		peerList.removeListSelectionListener(peerListSelectionListener);
 		peerFileList.removeListSelectionListener(peerFilesListSelectionListener);
 		btnSend.removeActionListener(sendButtonListener);
-		timer.removeActionListener(timerTick);
-
-		btnChat.removeActionListener(downloadPeerFileButtonListener);
+		btnDownloadPeerFile.removeActionListener(downloadPeerFileButtonListener);
 		//timer.removeActionListener(timerTick);
-
 	}
 
 
@@ -464,10 +453,10 @@ public class ClientGUI {
 		lblClient.setBounds(27, 22, 81, 24);
 		frame.getContentPane().add(lblClient);
 		
-		btnTerminateConnection = new JButton("Refresh");
-		btnTerminateConnection.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnTerminateConnection.setBounds(27, 98, 169, 23);
-		frame.getContentPane().add(btnTerminateConnection);
+		btnRefreshLists = new JButton("Refresh");
+		btnRefreshLists.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		btnRefreshLists.setBounds(27, 98, 169, 23);
+		frame.getContentPane().add(btnRefreshLists);
 		
 		lblIpAddress = new JLabel("IP Address: ");
 		lblIpAddress.setFont(new Font("Tahoma", Font.PLAIN, 13));
@@ -501,9 +490,7 @@ public class ClientGUI {
 		
 		serverFileList = new JList<String>();
 		serverFileList.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		//serverFileList.setBounds(27, 191, 160, 150);
 		serverFileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//frame.getContentPane().add(serverFileList);
 		serverFileScrollPane = new JScrollPane(serverFileList,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -522,9 +509,7 @@ public class ClientGUI {
 		
 		clientFileList = new JList<String>();
 		clientFileList.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		//clientFileList.setBounds(243, 191, 160, 146);
 		clientFileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//frame.getContentPane().add(clientFileList);
 		clientFileScrollPane = new JScrollPane(clientFileList,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -543,23 +528,22 @@ public class ClientGUI {
 		
 		peerList = new JList<String>();
 		peerList.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		//peerList.setBounds(460, 191, 160, 146);
 		peerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//frame.getContentPane().add(peerList);
 		peerScrollPane = new JScrollPane(peerList,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		peerScrollPane.setBounds(460, 191, 190, 146);
 		frame.getContentPane().add(peerScrollPane);
 		
-		btnChat = new JButton("Peer-to-Peer ");
-		btnChat.addActionListener(new ActionListener() {
+		btnDownloadPeerFile = new JButton("Download a Peer File");
+		/*btnDownloadPeerFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			}
-		});
-		btnChat.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		btnChat.setBounds(460, 355, 125, 23);
-		frame.getContentPane().add(btnChat);
+		});*/
+		btnDownloadPeerFile.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		btnDownloadPeerFile.setToolTipText("Download the file you have selected from your peer's file list.");
+		btnDownloadPeerFile.setBounds(460, 355, 170, 23);
+		frame.getContentPane().add(btnDownloadPeerFile);
 		
 		
 		///////////////////////////////////////
@@ -570,19 +554,12 @@ public class ClientGUI {
 		
 		peerFileList = new JList<String>();
 		peerFileList.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		//peerList.setBounds(460, 191, 160, 146);
 		peerFileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//frame.getContentPane().add(peerList);
 		peerFileScrollPane = new JScrollPane(peerFileList,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		peerFileScrollPane.setBounds(460, 425, 190, 146);
 		frame.getContentPane().add(peerFileScrollPane);
-		
-//		btnChat = new JButton("Peer-to-Peer ");
-//		btnChat.setFont(new Font("Tahoma", Font.PLAIN, 13));
-//		btnChat.setBounds(460, 355, 125, 23);
-//		frame.getContentPane().add(btnChat);
 		
 		///////////////////////////////////////
 		

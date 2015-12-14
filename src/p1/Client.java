@@ -94,12 +94,9 @@ public class Client extends JPanel implements Runnable {
 					stop();
 				}
 				else if (gui.isRequestingRefresh()) {
+					sendFileList();
 					streamOut.writeUTF("update"); // requests updated lists from server
 					System.out.println("CLIENT sent:\tupdate");
-					
-					//send local file list
-					sendFileList();
-					
 					gui.setRequestingRefresh(false);
 				}
 				else if (gui.isRequestingDownload()) {
@@ -134,7 +131,6 @@ public class Client extends JPanel implements Runnable {
 					if (peerName!=null){
 						streamOut.writeUTF("getPeerFileList");
 						System.out.println("CLIENT sent:\tgetPeerFileList");
-						// mark this file request as "PENDING" status to notify waiting client 
 						streamOut.writeUTF(peerName);
 						streamOut.flush();
 					}
@@ -220,12 +216,11 @@ public class Client extends JPanel implements Runnable {
 		return streamOut;
 	}
 	
-	
 	public void updateGUILists(DataInputStream inputStream) {
 		ArrayList<String> serverList = new ArrayList<String>();
 		ArrayList<String> clientList = new ArrayList<String>(getFileList());
 		ArrayList<String> peerList = new ArrayList<String>();
-		ArrayList<String> requestList = new ArrayList<String>();
+		//ArrayList<String> requestList = new ArrayList<String>();
 		int listSize;
 		try {
 			listSize = inputStream.readInt();
@@ -240,18 +235,17 @@ public class Client extends JPanel implements Runnable {
 				peerList.add(inputStream.readUTF());
 				System.out.println("CLIENT Recieved:\tPeer: "+peerList.get(j));
 			}
-			listSize = inputStream.readInt();
+			/*listSize = inputStream.readInt();
 			System.out.println("CLIENT recieved:\t"+listSize+" requests on Server");
 			for (int j = 0; j < listSize; j++){
 				requestList.add(inputStream.readUTF());
 				System.out.println("CLIENT Recieved:\tRequest: "+peerList.get(j));
-
-			}
+			}*/
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("CLIENT:\tFiles on System: "+clientList);
-		gui.updateLists(serverList, clientList, peerList, requestList);
+		gui.updateLists(serverList, clientList, peerList);
 		
 	}
 	
@@ -363,39 +357,21 @@ public class Client extends JPanel implements Runnable {
 		}
 	}
 	
-	private File findFile(String name){
-		String file_path = path + "\\" + name;
-		File aFile = new File(file_path);
-		if (aFile.exists())
-			return aFile;
-		return null;
-	}
 	
-	public void receiveP2PFile() {
+	public void receiveP2PFile() throws IOException {
 		P2PServer p2p = new P2PServer(60000, path);
+		System.out.println("starting p2p receive");
 		p2p.run();
+		System.out.println("updating client list after p2p receive");
 		gui.updateClientList(getFileList());
+		System.out.println("finished p2p receive");
 	}
 	
 	public void sendP2PFile(String ipAdd, String filename) throws IOException {
-		String IP = ipAdd;
-		int port = 60000;
-		
-		/*File fileChosen = null;
-		String filePath = "";
-		JFileChooser fileChooser = new JFileChooser(); 
-		fileChooser.setCurrentDirectory(new java.io.File(path));
-		fileChooser.setDialogTitle("Choose a File to send");
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		fileChooser.setAcceptAllFileFilterUsed(false);
-		fileChooser.setVisible(true);
-		// the condition in this 'if-statement' required extending JPanel
-		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			fileChosen = fileChooser.getSelectedFile();
-			filePath = fileChosen.getAbsolutePath();
-		}*/
-		P2PClient p2p = new P2PClient(IP, port, path, filename);
+		P2PClient p2p = new P2PClient(ipAdd, 60000, path, filename);
+		System.out.println("starting p2p send");
 		p2p.run();
+		System.out.println("finished p2p send");
 	}
 
 	public void receiveFile(DataInputStream request) throws IOException {
@@ -427,8 +403,21 @@ public class Client extends JPanel implements Runnable {
 			}
 		}
 	}
+	
+	public void recieveMessage(String m) {
+		gui.appendChat(m);
+	}
+	
+	
+	/*private File findFile(String name){
+		String file_path = path + "\\" + name;
+		File aFile = new File(file_path);
+		if (aFile.exists())
+			return aFile;
+		return null;
+	}*/
 
-	public void sendCmd(String input, DataOutputStream reply) throws IOException {
+/*	public void sendCmd(String input, DataOutputStream reply) throws IOException {
 		try {
 			byte[] buf = new byte[input.length()];
 			for (int i = 0; i < input.length(); i++)
@@ -510,10 +499,8 @@ public class Client extends JPanel implements Runnable {
 			}
 		}
 	}
-
-	public void recieveMessage(String m) {
-		gui.appendChat(m);
-	}
+*/
+	
 
 	
 //	public static void main(String[] args) {

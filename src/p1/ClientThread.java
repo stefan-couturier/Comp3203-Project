@@ -36,12 +36,12 @@ public class ClientThread extends Thread {
 					client.uploadFile();
 				//else if (received.equals("noupload"))
 					//;
-				else if (received.equals("pending"))
+				/*else if (received.equals("pending"))
 					client.receiveP2PFile();
 				else if (received.equals("sendP2P")) {
 					String ip = inputStream.readUTF();
 					//client.sendP2PFile(ip, filename);
-				}
+				}*/
 				else if (received.equals("receivePeerFile")) {
 					client.receiveP2PFile();
 				}

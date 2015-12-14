@@ -34,7 +34,7 @@ public class ServerThread extends Thread {
 		while (true) {
 			try {
 				// if there are file requests to handle, do them before listening to client
-				String pendingFile = server.getPendingFileRequestPoster(username);
+				/*String pendingFile = server.getPendingFileRequestPoster(username);
 				if (!pendingFile.equals("")) {
 					send("pending");
 					// ideally poster is now waiting to receive file
@@ -43,7 +43,7 @@ public class ServerThread extends Thread {
 				if (!ip.equals("")) {
 					send("sendP2P");
 					send(ip);
-				}
+				}*/
 				
 				// serverThread does the 'receiving' from client, and then tells server what to do
 				received = inputStream.readUTF();
@@ -80,12 +80,12 @@ public class ServerThread extends Thread {
 				else if (received.equals("username")) {
 					username = inputStream.readUTF();
 				}
-				else if (received.equals("post")) {
+				/*else if (received.equals("post")) {
 					server.addFileRequest(inputStream.readUTF(), inputStream.readUTF(), username);
 				}
 				else if (received.equals("response")) {
 					server.setFileRequestToPending(inputStream.readUTF(), username);
-				}
+				}*/
 				else if (received.equals("message")){
 					String m = inputStream.readUTF();
 					for(int i=0; i<server.getClientCount();i++){
@@ -115,8 +115,6 @@ public class ServerThread extends Thread {
 					String peerName = inputStream.readUTF();
 					String peerFile = inputStream.readUTF();
 					String ipAdd = inputStream.readUTF();
-					//int n = server.find
-					
 					send("receivePeerFile");
 					server.handleGetPeerFile(ID, peerFile, peerName, ipAdd, outputStream);
 				}

@@ -30,13 +30,14 @@ public class Server implements Runnable{
 	}
 
 	public Server(int port){
-		File[] roots = File.listRoots();
-		root_dir = roots[0].toString();
+		//File[] roots = File.listRoots();
+		//root_dir = roots[0].toString();
 		////////
-		root_dir = "Z:\\";
-		System.out.println("!"+root_dir+"!");
+		//root_dir = "Z:\\";
+		//System.out.println("!"+root_dir+"!");
 		////////
-		createDirectory();
+		//createDirectory();
+		root_dir = "C:\\Test";
 		
 		gui = new ServerGUI(this);
 		try{
@@ -117,7 +118,7 @@ public class Server implements Runnable{
 	public synchronized void handleUpdateLists(int ID, DataOutputStream outputStream) {
 		sendArrayList(getFileList(), outputStream);
 		sendArrayList(getPeerList(), outputStream);
-		sendArrayList(getFileRequests(), outputStream);
+		//sendArrayList(getFileRequests(), outputStream);
 	}
 	
 	// this send a file to client when they request to download a file
@@ -157,15 +158,6 @@ public class Server implements Runnable{
 		clients[peerID].send("sendPeerFile");
 		clients[peerID].send(ip);
 		clients[peerID].send(filename);
-		
-		/*try{
-			
-			//outputStream.writeUTF("sendPeerFile");
-			//outputStream.writeUTF(ip);
-			//outputStream.writeUTF(filename);
-		}catch (IOException e){
-			e.printStackTrace();
-		}*/
 	}
 	
 	
@@ -252,13 +244,7 @@ public class Server implements Runnable{
 		return status;
 	}
 
-	private File findFile(String name){
-		String file_path = current_file + "\\" + name;
-		File aFile = new File(file_path);
-		if (aFile.exists())
-			return aFile;
-		return null;
-	}
+
 
 	public synchronized boolean receiveFile(String path, DataInputStream request) throws IOException {
 		boolean status = true;
@@ -300,8 +286,96 @@ public class Server implements Runnable{
 		}
 		return status;
 	}
+	
+	
+	public void sendArrayList(ArrayList<String> list, DataOutputStream outputStream) {
+		try {
+			// so client knows how many file names to expect
+			outputStream.writeInt(list.size());
+			System.out.println("SERVER Sent:\t"+list.size());
+			for (int i=0; i < list.size(); i++){
+				outputStream.writeUTF(list.get(i));
+				System.out.println("SERVER Sent:\t"+list.get(i));
+			}
+			outputStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public ArrayList<String> getPeerList() {
+		ArrayList<String> peers = new ArrayList<String>();
+		for (int i = 0; i < clientCount; i++)
+			peers.add(clients[i].getUsername());
+		return peers;
+	}
+	
+	public ArrayList<String> getFileList() {
+		File f = new File(root_dir);
+		ArrayList<File> files = new ArrayList<File>(Arrays.asList(f.listFiles()));
+		ArrayList<String> list = new ArrayList<String>();
+		for(int x = 0; x < files.size(); x++) {
+			if (!files.get(x).isDirectory()) 
+				list.add(files.get(x).getName());
+		}
+		return list;
+	}
 
-	public void sendMsg(String input, DataOutputStream reply) throws IOException {
+
+	// verify that server doesn't already have the file that the client wants to upload
+	public synchronized boolean verifyUpload(String s) {
+		ArrayList<String> list = new ArrayList<String>(getFileList());
+		if (s != null && !list.contains(s))
+			return true;
+		else return false;
+	}
+
+	private static void createDirectory(){
+		//if exists
+		boolean success = false;
+		System.out.println("\tdirectory " + root_dir + "\n");
+		File aFile = new File(root_dir + "SERVER3203");
+		System.out.println("\tdirectory " + aFile.getAbsolutePath() + "\n");
+		if (aFile.exists()){
+			//Check permissions
+			if (aFile.canWrite()){
+				System.out.println("\tdirectory " + aFile.getAbsolutePath() +" already exists and can write");
+			}
+			else{
+				System.out.println("\tdirectory " + aFile.getAbsolutePath() +" already exists and cannot write");
+			}	
+		}
+		else{
+			success = aFile.mkdir();
+			if (success)
+				System.out.println("\tDirectory " + aFile.getAbsolutePath() +" Created");
+			else
+				System.out.println("\tDirectory " + aFile.getAbsolutePath() +" failed to be created");
+		}
+		root_dir = root_dir + "SERVER3203" + "\\";
+
+	}
+
+
+	public static void main(String args[]){
+		Server server = null;
+		if (args.length != 1)
+			server = new Server(PORT_NUM);
+		else
+			server = new Server(Integer.parseInt(args[0]));
+	}
+	
+	
+	/*private File findFile(String name){
+		String file_path = current_file + "\\" + name;
+		File aFile = new File(file_path);
+		if (aFile.exists())
+			return aFile;
+		return null;
+	}*/
+
+/*	public void sendMsg(String input, DataOutputStream reply) throws IOException {
 		try {
 			byte[] buf = new byte[input.length()];
 			for (int i = 0; i < input.length(); i++)
@@ -384,42 +458,10 @@ public class Server implements Runnable{
 		}
 		return s;
 	}
+*/
+	
 
-	public void sendArrayList(ArrayList<String> list, DataOutputStream outputStream) {
-		try {
-			// so client knows how many file names to expect
-			outputStream.writeInt(list.size());
-			System.out.println("SERVER Sent:\t"+list.size());
-			for (int i=0; i < list.size(); i++){
-				outputStream.writeUTF(list.get(i));
-				System.out.println("SERVER Sent:\t"+list.get(i));
-			}
-			outputStream.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	public ArrayList<String> getPeerList() {
-		ArrayList<String> peers = new ArrayList<String>();
-		for (int i = 0; i < clientCount; i++)
-			peers.add(clients[i].getUsername());
-		return peers;
-	}
-	
-	public ArrayList<String> getFileList() {
-		File f = new File(root_dir);
-		ArrayList<File> files = new ArrayList<File>(Arrays.asList(f.listFiles()));
-		ArrayList<String> list = new ArrayList<String>();
-		for(int x = 0; x < files.size(); x++) {
-			if (!files.get(x).isDirectory()) 
-				list.add(files.get(x).getName());
-		}
-		return list;
-	}
-	
-	public synchronized void addFileRequest(String d, String pIP, String p) {
+/*	public synchronized void addFileRequest(String d, String pIP, String p) {
 		fileRequests.add(new FileRequest(d, pIP, p));
 	}
 	
@@ -461,50 +503,9 @@ public class Server implements Runnable{
 			requests.add(fileRequests.get(i).getDescription());
 		return requests;
 	}
-
-
-	// verify that server doesn't already have the file that the client wants to upload
-	public synchronized boolean verifyUpload(String s) {
-		ArrayList<String> list = new ArrayList<String>(getFileList());
-		if (s != null && !list.contains(s))
-			return true;
-		else return false;
-	}
+*/
 
 	
-	public static void main(String args[]){
-		Server server = null;
-	    if (args.length != 1)
-	    	server = new Server(PORT_NUM);
-	    else
-	    	server = new Server(Integer.parseInt(args[0]));
-	}
-	
-	private static void createDirectory(){
-		//if exists
-		boolean success = false;
-		System.out.println("\tdirectory " + root_dir + "\n");
-		File aFile = new File(root_dir + "SERVER3203");
-		System.out.println("\tdirectory " + aFile.getAbsolutePath() + "\n");
-		if (aFile.exists()){
-			//Check permissions
-			if (aFile.canWrite()){
-				System.out.println("\tdirectory " + aFile.getAbsolutePath() +" already exists and can write");
-			}
-			else{
-				System.out.println("\tdirectory " + aFile.getAbsolutePath() +" already exists and cannot write");
-			}	
-		}
-		else{
-			success = aFile.mkdir();
-			if (success)
-				System.out.println("\tDirectory " + aFile.getAbsolutePath() +" Created");
-			else
-				System.out.println("\tDirectory " + aFile.getAbsolutePath() +" failed to be created");
-		}
-		root_dir = root_dir + "SERVER3203" + "\\";
-		
-	}
 	
 //	public static void main(String[] args) {
 //

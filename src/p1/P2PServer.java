@@ -21,16 +21,15 @@ public class P2PServer {
 
 		try {
 			serv = new ServerSocket(PORT_NUM);
-			while(true){
-				System.out.println("Waiting for connection on PORT "+PORT_NUM);
-				clnt = serv.accept();
-				System.out.println("Connection found");
+			System.out.println("Waiting for P2P connection on PORT "+PORT_NUM);
+			clnt = serv.accept();
+			System.out.println("P2P Connection found");
 
-				request = new DataInputStream(clnt.getInputStream());
-				reply = new DataOutputStream(clnt.getOutputStream());
+			request = new DataInputStream(clnt.getInputStream());
+			reply = new DataOutputStream(clnt.getOutputStream());
 
-				receiveFile(request);
-			}
+			receiveFile(request);
+
 
 		} catch (Exception e) {
 			System.err.println("--error: " + e.getMessage());
@@ -40,10 +39,10 @@ public class P2PServer {
 					request.close();
 				if (reply != null)
 					reply.close();
-				if (clnt != null)
-					clnt.close();
 				if (serv != null)
 					serv.close();
+				if (clnt != null)
+					clnt.close();
 			} catch (Exception e) {
 				System.err.println("--error: " + e.getMessage());
 			}

@@ -30,7 +30,6 @@ public class P2PClient {
 			sendFile(request);
 			
 		} catch (Exception e) {
-			// gets caught here 
 			System.err.println("--error: " + e.getMessage());
 		} finally {
 			try {
@@ -49,16 +48,12 @@ public class P2PClient {
 	}
 
 
-	/***************
-	 * sendFile() takes a file name, ie:"test.txt" with extension and sends the
-	 * file to the client
-	 *******************/
 	public void sendFile(DataOutputStream request) throws IOException {
 
 		FileInputStream file_stream = null;
 		BufferedInputStream buffer_stream = null;
 		DataInputStream dataIn_stream = null;
-		dataIn_stream = null;
+		//dataIn_stream = null;
 
 		String file_path = path + "\\" + fileToSend;
 		//String file_path = fileToSend;
@@ -79,6 +74,7 @@ public class P2PClient {
 			request.flush();
 			request.write(byte_array, 0, byte_array.length);
 			request.flush();
+			
 		} catch (Exception e) {
 			System.err.println("--error: " + e.getMessage());
 		} finally {
